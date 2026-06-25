@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserBadge {
+public class UserBadges {
 
     @EmbeddedId
-    private UserBadgeId id;
+    private UserBadgesId id;
 
     @ManyToOne
     @MapsId("userId")

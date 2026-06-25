@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserBadgeId {
+public class UserBadgesId {
 
     @Column(name = "user_id")
     private Long userId;

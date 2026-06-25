@@ -1,0 +1,19 @@
+package com.singha.stackoverflow.springwebapp.controller;
+
+import com.singha.stackoverflow.springwebapp.dto.ReputationHistoryResponse;
+import com.singha.stackoverflow.springwebapp.service.ReputationHistoryService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/users/{userId}/reputation-history")
+public class ReputationHistoryController {
+
+    private ReputationHistoryService reputationHistoryService;
+
+    @GetMapping
+    public List<ReputationHistoryResponse> getReputationHistoryByUserId(@PathVariable Long userId) {
+        return reputationHistoryService.getReputationHistoryByUserId(userId);
+    }
+}

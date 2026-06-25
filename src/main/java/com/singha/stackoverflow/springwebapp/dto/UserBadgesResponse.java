@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserBadgeResponse {
+public class UserBadgesResponse {
 
     private Long userId;
     private String username;
