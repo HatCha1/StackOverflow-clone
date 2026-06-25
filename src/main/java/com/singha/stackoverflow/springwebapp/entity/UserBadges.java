@@ -17,12 +17,12 @@ public class UserBadges {
     @EmbeddedId
     private UserBadgesId id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("badgeId")
     @JoinColumn(name = "badge_id", nullable = false)
     private Badge badge;
