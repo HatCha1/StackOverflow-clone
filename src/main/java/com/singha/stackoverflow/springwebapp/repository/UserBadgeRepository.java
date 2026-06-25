@@ -1,6 +1,7 @@
 package com.singha.stackoverflow.springwebapp.repository;
 
 import com.singha.stackoverflow.springwebapp.entity.ReputationHistory;
+import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.entity.UserBadge;
 import com.singha.stackoverflow.springwebapp.entity.UserBadgeId;
 import org.springframework.data.jpa.repository.JpaRepository;

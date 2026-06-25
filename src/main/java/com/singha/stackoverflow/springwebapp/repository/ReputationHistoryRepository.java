@@ -1,6 +1,7 @@
 package com.singha.stackoverflow.springwebapp.repository;
 
 import com.singha.stackoverflow.springwebapp.entity.ReputationHistory;
+import com.singha.stackoverflow.springwebapp.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
