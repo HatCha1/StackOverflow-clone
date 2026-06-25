@@ -18,7 +18,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Matches "generated always as identity"
     @Column(name = "user_id")
-    private Long user_id; // Use standard Long for Postgres bigint
+    private Long userId; // Use standard Long for Postgres bigint
 
     @Column(name = "username", nullable = false, length = 50, unique = true)
     private String username;
@@ -36,8 +36,8 @@ public class User {
     private Integer reputation; // Matches integer type
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime created_at; // Matches timestamp without time zone
+    private LocalDateTime createdAt; // Matches timestamp without time zone
 
-    @Column(name = "display_name", length = 100)
+    @Column(name = "display_name", length = 100, nullable = false)
     private String displayName; // Added this missing field from your table structure
 }
