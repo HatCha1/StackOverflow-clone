@@ -47,7 +47,7 @@ public class AnswerService {
 
     public List<AnswerResponse> getAnswersByQuestionId(Long questionId) {
         List<Answer> answers =
-                answerRepository.findByQuestion_QuesetionIdOrderByCreatdAtAsc(questionId);
+                answerRepository.findByQuestion_QuestionIdOrderByCreatedAtAsc(questionId);
 
         return answers.stream()
                 .map(this::convertToResponse)

@@ -1,8 +1,12 @@
 package com.singha.stackoverflow.springwebapp.service;
 
 import com.singha.stackoverflow.springwebapp.dto.ReputationHistoryResponse;
+import com.singha.stackoverflow.springwebapp.entity.Answer;
+import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.ReputationHistory;
 import com.singha.stackoverflow.springwebapp.entity.User;
+import com.singha.stackoverflow.springwebapp.repository.AnswerRepository;
+import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
 import com.singha.stackoverflow.springwebapp.repository.ReputationHistoryRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
