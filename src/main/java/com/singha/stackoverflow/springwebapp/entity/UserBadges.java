@@ -27,6 +27,6 @@ public class UserBadges {
     @JoinColumn(name = "badge_id", nullable = false)
     private Badge badge;
 
-    @Column(name = "awarded_at")
+    @Column(name = "awarded_at", nullable = false)
     private LocalDateTime awardedAt;
 }

@@ -15,7 +15,7 @@ public class ReputationHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reputation_id")
+    @Column(name = "reputation_id", nullable = false)
     private Long reputationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,9 +37,9 @@ public class ReputationHistory {
     @Column(name = "reputation_change", nullable = false)
     private Integer reputationChange;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "reason", nullable = false, length = 100)
     private String reason;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 }
