@@ -9,6 +9,7 @@ import com.singha.stackoverflow.springwebapp.entity.UserBadgesId;
 import com.singha.stackoverflow.springwebapp.repository.BadgeRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserBadgesRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,8 +17,13 @@ import java.util.List;
 
 @Service
 public class UserBadgesService {
+    @Autowired
     private UserBadgesRepository userBadgesRepository;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
     private BadgeRepository badgeRepository;
 
     public List<UserBadgesResponse> getBadgesByUserId(Long userId) {

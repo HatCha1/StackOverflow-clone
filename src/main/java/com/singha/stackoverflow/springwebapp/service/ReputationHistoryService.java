@@ -20,8 +20,14 @@ public class ReputationHistoryService {
 
     @Autowired
     private ReputationHistoryRepository reputationHistoryRepository;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
     private QuestionRepository questionRepository;
+
+    @Autowired
     private AnswerRepository answerRepository;
 
     public ReputationHistory createReputationHistory(
