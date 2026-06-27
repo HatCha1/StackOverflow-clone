@@ -3,6 +3,7 @@ package com.singha.stackoverflow.springwebapp.controller;
 import com.singha.stackoverflow.springwebapp.dto.AwardBadgeRequest;
 import com.singha.stackoverflow.springwebapp.dto.UserBadgesResponse;
 import com.singha.stackoverflow.springwebapp.service.UserBadgesService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping
 public class UserBadgesController {
-
+    @Autowired
     private UserBadgesService userBadgesService;
 
     @GetMapping("/api/users/{userId}/badges")

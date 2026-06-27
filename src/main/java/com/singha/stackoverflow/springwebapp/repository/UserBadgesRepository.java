@@ -1,7 +1,5 @@
 package com.singha.stackoverflow.springwebapp.repository;
 
-import com.singha.stackoverflow.springwebapp.entity.ReputationHistory;
-import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.entity.UserBadges;
 import com.singha.stackoverflow.springwebapp.entity.UserBadgesId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,8 +9,6 @@ import java.util.List;
 
 @Repository
 public interface UserBadgesRepository extends JpaRepository<UserBadges, UserBadgesId> {
-    List<UserBadges> findByUser(User user);
-
     List<UserBadges> findByUser_UserIdOrderByAwardedAtDesc(Long userId);
     /*
      SELECT *

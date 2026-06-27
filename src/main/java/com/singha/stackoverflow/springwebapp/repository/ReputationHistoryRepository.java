@@ -9,8 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ReputationHistoryRepository extends JpaRepository<ReputationHistory, Long> {
-    List<ReputationHistory> findByUser(User user);
-
     List<ReputationHistory> findByUser_UserIdOrderByCreatedAtDesc(Long userId);
     /*
      SELECT *

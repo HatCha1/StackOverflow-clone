@@ -2,9 +2,11 @@ package com.singha.stackoverflow.springwebapp.service;
 
 import com.singha.stackoverflow.springwebapp.dto.AwardBadgeRequest;
 import com.singha.stackoverflow.springwebapp.dto.UserBadgesResponse;
+import com.singha.stackoverflow.springwebapp.entity.Badge;
 import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.entity.UserBadges;
 import com.singha.stackoverflow.springwebapp.entity.UserBadgesId;
+import com.singha.stackoverflow.springwebapp.repository.BadgeRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserBadgesRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.stereotype.Service;
