@@ -7,6 +7,8 @@ import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QuestionService {
@@ -30,5 +32,15 @@ public class QuestionService {
         question.setCreatedAt(LocalDateTime.now()); // Satisfies the not-null column
 
         return questionRepository.save(question);
+    }
+
+    // READ ALL
+    public List<Question> getAllQuestions() {
+        return questionRepository.findAll();
+    }
+
+    // READ ONE
+    public Optional<Question> getQuestionById(Long questionId) {
+        return questionRepository.findById(questionId);
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/questions")
 public class QuestionController {
@@ -25,6 +27,32 @@ public class QuestionController {
         );
 
         // 2. Map entity output data back to a clean response DTO structure
+        QuestionResponseDTO response = convertToResponseDTO(savedQuestion);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 1. READ ALL
+    @GetMapping
+    public ResponseEntity<List<QuestionResponseDTO>> getAllQuestions() {
+        List<Question> questions = questionService.getAllQuestions();
+        List<QuestionResponseDTO> response = questions.stream()
+                .map(this::convertToResponseDTO)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    // 2. READ ONE
+    @GetMapping("/{id}")
+    public ResponseEntity<QuestionResponseDTO> getQuestionById(@PathVariable Long id) {
+        return questionService.getQuestionById(id)
+                .map(this::convertToResponseDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // conversion mapping helper method
+    private QuestionResponseDTO convertToResponseDTO(Question savedQuestion) {
         QuestionResponseDTO response = new QuestionResponseDTO();
         response.setQuestionId(savedQuestion.getQuestionId());
         response.setTitle(savedQuestion.getTitle());
@@ -32,8 +60,8 @@ public class QuestionController {
         response.setViewCount(savedQuestion.getViewCount());
         response.setIsClosed(savedQuestion.getIsClosed());
         response.setCreatedAt(savedQuestion.getCreatedAt());
-        response.setAuthorName(savedQuestion.getUser().getUsername()); // Reached through relationship link
-
-        return ResponseEntity.ok(response);
+        response.setAuthorName(savedQuestion.getUser().getUsername());
+        return response;
     }
+
 }
