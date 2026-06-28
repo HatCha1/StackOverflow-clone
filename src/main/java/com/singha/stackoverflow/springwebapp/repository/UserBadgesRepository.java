@@ -16,6 +16,5 @@ public interface UserBadgesRepository extends JpaRepository<UserBadges, UserBadg
         WHERE user_id = ?
         ORDER BY awarded_at DESC;
     */
-
     boolean existsByUser_UserIdAndBadge_BadgeId(Long userId, Long badgeId);
 }

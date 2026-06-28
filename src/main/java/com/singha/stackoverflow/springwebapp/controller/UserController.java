@@ -17,19 +17,18 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> registerUser(@RequestBody UserRegisterDTO registerDTO) {
-        // 1. Convert DTO -> Entity
+        // 1. Convert Incoming DTO -> Database Entity
         User userEntity = new User();
         userEntity.setUsername(registerDTO.getUsername());
         userEntity.setEmail(registerDTO.getEmail());
-        userEntity.setPasswordHash(registerDTO.getPassword());
+        userEntity.setPasswordHash(registerDTO.getPassword()); // Pulls plain text input password
         userEntity.setReputation(0);
-
         userEntity.setDisplayName(registerDTO.getUsername());
 
-        // 2. Save using your service layer
+        // 2. Save into PostgreSQL
         User savedUser = userService.createUser(userEntity);
 
-        // 3. Convert saved Entity -> Response DTO
+        // 3. Convert saved Database Entity -> Clean Outgoing Response DTO
         UserResponseDTO response = convertToResponseDTO(savedUser);
         return ResponseEntity.ok(response);
     }
@@ -54,4 +53,5 @@ public class UserController {
         dto.setDisplayName(user.getDisplayName());
         return dto;
     }
+
 }

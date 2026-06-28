@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/comments")
 public class CommentController {
@@ -56,4 +58,41 @@ public class CommentController {
         }
         return dto;
     }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<String> deleteComment(
+            @PathVariable Long commentId,
+            @RequestParam Long userId) {
+
+        try {
+            commentService.deleteComment(commentId, userId);
+            return ResponseEntity.ok("Comment deleted successfully.");
+        } catch (RuntimeException e) {
+            // Returns a 400 Bad Request or 403 Forbidden
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 1. GET ALL comments for a specific question
+    @GetMapping("/question/{questionId}")
+    public ResponseEntity<List<CommentResponseDTO>> getCommentsByQuestion(@PathVariable Long questionId) {
+        List<Comment> comments = commentService.getCommentsByQuestionId(questionId);
+
+        // Map the whole list of entities cleanly into a list of flat Response DTOs
+        List<CommentResponseDTO> response = comments.stream()
+                .map(this::convertToResponseDTO)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 2. GET ONE specific comment by its ID
+    @GetMapping("/{commentId}")
+    public ResponseEntity<CommentResponseDTO> getCommentById(@PathVariable Long commentId) {
+        return commentService.getCommentById(commentId)
+                .map(this::convertToResponseDTO) // Convert entity to DTO if found
+                .map(ResponseEntity::ok)         // Wrap in HTTP 200 OK
+                .orElse(ResponseEntity.notFound().build()); // Return 404 if missing
+    }
+
 }

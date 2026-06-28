@@ -11,6 +11,8 @@ import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -58,5 +60,29 @@ public class CommentService {
         comment.setCreatedAt(LocalDateTime.now());
 
         return commentRepository.save(comment);
+    }
+
+    public void deleteComment(Long commentId, Long userId) {
+        // 1. Check if the comment even exists
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found with ID: " + commentId));
+
+        // 2. Security/Ownership Check: Does this comment belong to the requesting user?
+        if (!comment.getUser().getUserId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to delete this comment!");
+        }
+
+        // 3. If passed, delete from PostgreSQL
+        commentRepository.delete(comment);
+    }
+
+    // 1. Get all comments belonging to a specific question thread
+    public List<Comment> getCommentsByQuestionId(Long questionId) {
+        return commentRepository.findByQuestion_QuestionIdOrderByCreatedAtAsc(questionId);
+    }
+
+    // 2. Get a single specific comment by its unique ID
+    public Optional<Comment> getCommentById(Long commentId) {
+        return commentRepository.findById(commentId);
     }
 }
