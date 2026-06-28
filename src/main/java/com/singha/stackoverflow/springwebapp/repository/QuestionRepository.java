@@ -11,4 +11,5 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     // Custom query method: Finds all questions posted by a specific user ID
     List<Question> findByUser_UserId(Long userId);
+
 }

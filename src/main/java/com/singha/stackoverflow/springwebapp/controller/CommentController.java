@@ -1,5 +1,6 @@
 package com.singha.stackoverflow.springwebapp.controller;
 
+import com.singha.stackoverflow.springwebapp.dto.CommentUpdateDTO;
 import com.singha.stackoverflow.springwebapp.dto.QuestionCommentCreateDTO;
 import com.singha.stackoverflow.springwebapp.dto.AnswerCommentCreateDTO;
 import com.singha.stackoverflow.springwebapp.dto.CommentResponseDTO;
@@ -59,20 +60,6 @@ public class CommentController {
         return dto;
     }
 
-    @DeleteMapping("/{commentId}")
-    public ResponseEntity<String> deleteComment(
-            @PathVariable Long commentId,
-            @RequestParam Long userId) {
-
-        try {
-            commentService.deleteComment(commentId, userId);
-            return ResponseEntity.ok("Comment deleted successfully.");
-        } catch (RuntimeException e) {
-            // Returns a 400 Bad Request or 403 Forbidden
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     // 1. GET ALL comments for a specific question
     @GetMapping("/question/{questionId}")
     public ResponseEntity<List<CommentResponseDTO>> getCommentsByQuestion(@PathVariable Long questionId) {
@@ -93,6 +80,37 @@ public class CommentController {
                 .map(this::convertToResponseDTO) // Convert entity to DTO if found
                 .map(ResponseEntity::ok)         // Wrap in HTTP 200 OK
                 .orElse(ResponseEntity.notFound().build()); // Return 404 if missing
+    }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<?> updateComment(
+            @PathVariable Long commentId,
+            @RequestBody CommentUpdateDTO updateDTO) {
+
+        try {
+            Comment updatedComment = commentService.updateComment(
+                    commentId,
+                    updateDTO.getUserId(),
+                    updateDTO.getBody()
+            );
+            return ResponseEntity.ok(convertToResponseDTO(updatedComment));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<String> deleteComment(
+            @PathVariable Long commentId,
+            @RequestParam Long userId) {
+
+        try {
+            commentService.deleteComment(commentId, userId);
+            return ResponseEntity.ok("Comment deleted successfully.");
+        } catch (RuntimeException e) {
+            // Returns a 400 Bad Request or 403 Forbidden
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }

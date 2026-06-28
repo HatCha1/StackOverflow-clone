@@ -62,6 +62,33 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
+    // 1. Get all comments belonging to a specific question thread
+    public List<Comment> getCommentsByQuestionId(Long questionId) {
+        return commentRepository.findByQuestion_QuestionIdOrderByCreatedAtAsc(questionId);
+    }
+
+    // 2. Get a single specific comment by its unique ID
+    public Optional<Comment> getCommentById(Long commentId) {
+        return commentRepository.findById(commentId);
+    }
+
+    public Comment updateComment(Long commentId, Long userId, String newBody) {
+        // 1. Fetch the existing comment
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found with ID: " + commentId));
+
+        // 2. Ownership Validation: Only the author can edit it!
+        if (!comment.getUser().getUserId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to edit this comment!");
+        }
+
+        // 3. Update the mutable field
+        comment.setBody(newBody);
+
+        // 4. Flush the changes to PostgreSQL
+        return commentRepository.save(comment);
+    }
+
     public void deleteComment(Long commentId, Long userId) {
         // 1. Check if the comment even exists
         Comment comment = commentRepository.findById(commentId)
@@ -76,13 +103,4 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
-    // 1. Get all comments belonging to a specific question thread
-    public List<Comment> getCommentsByQuestionId(Long questionId) {
-        return commentRepository.findByQuestion_QuestionIdOrderByCreatedAtAsc(questionId);
-    }
-
-    // 2. Get a single specific comment by its unique ID
-    public Optional<Comment> getCommentById(Long commentId) {
-        return commentRepository.findById(commentId);
-    }
 }
