@@ -43,4 +43,34 @@ public class QuestionService {
     public Optional<Question> getQuestionById(Long questionId) {
         return questionRepository.findById(questionId);
     }
+
+    // UPDATE
+    public Question updateQuestion(Long questionId, Long userId, String newTitle, String newBody) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        // Validation Check: Does this question belong to the requesting user?
+        if (!question.getUser().getUserId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to edit this question!");
+        }
+
+        question.setTitle(newTitle);
+        question.setBody(newBody);
+
+        return questionRepository.save(question);
+    }
+
+    // DELETE
+    public void deleteQuestion(Long questionId, Long userId) {
+        Question question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("Question not found"));
+
+        // Validation Check
+        if (!question.getUser().getUserId().equals(userId)) {
+            throw new RuntimeException("You are not authorized to delete this question!");
+        }
+
+        questionRepository.delete(question);
+    }
+
 }

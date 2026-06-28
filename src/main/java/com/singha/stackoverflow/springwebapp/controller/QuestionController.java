@@ -2,6 +2,7 @@ package com.singha.stackoverflow.springwebapp.controller;
 
 import com.singha.stackoverflow.springwebapp.dto.QuestionCreateDTO;
 import com.singha.stackoverflow.springwebapp.dto.QuestionResponseDTO;
+import com.singha.stackoverflow.springwebapp.dto.QuestionUpdateDTO;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,37 @@ public class QuestionController {
                 .map(this::convertToResponseDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // 3. UPDATE
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateQuestion(
+            @PathVariable Long id,
+            @RequestBody QuestionUpdateDTO updateDTO) {
+        try {
+            Question updatedQuestion = questionService.updateQuestion(
+                    id,
+                    updateDTO.getUserId(),
+                    updateDTO.getTitle(),
+                    updateDTO.getBody()
+            );
+            return ResponseEntity.ok(convertToResponseDTO(updatedQuestion));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 4. DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteQuestion(
+            @PathVariable Long id,
+            @RequestParam Long userId) {
+        try {
+            questionService.deleteQuestion(id, userId);
+            return ResponseEntity.ok("Question deleted successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     // conversion mapping helper method
