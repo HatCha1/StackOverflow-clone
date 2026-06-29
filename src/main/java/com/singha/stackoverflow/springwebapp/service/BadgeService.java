@@ -1,6 +1,8 @@
 package com.singha.stackoverflow.springwebapp.service;
 
 import com.singha.stackoverflow.springwebapp.entity.Badge;
+import com.singha.stackoverflow.springwebapp.exception.DuplicateResourceException;
+import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.repository.BadgeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,23 +18,23 @@ public class BadgeService {
 
     public Badge createBadge(Badge badge) {
         if (badgeRepository.existsByBadgeName(badge.getBadgeName())) {
-            throw new RuntimeException("Badge name already exists");
+            throw new DuplicateResourceException("Badge name already exists");
         }
 
         return badgeRepository.save(badge);
     }
 
-    public Optional<Badge> getBadgeById(Long badgeId) {
-        return badgeRepository.findById(badgeId);
+    public Badge getBadgeById(Long badgeId) {
+        return badgeRepository.findById(badgeId).orElseThrow(
+                () -> new ResourceNotFoundException("Badge not found")
+        );
     }
 
     public List<Badge> getAllBadges() {
         return badgeRepository.findAll();
     }
 
-    public List<Badge> getBadgesByType(String badgeType) {
-        return badgeRepository.findByBadgeType(badgeType);
-    }
+    public List<Badge> getBadgesByType(String badgeType) { return badgeRepository.findByBadgeType(badgeType); }
 
     public List<Badge> searchBadgesByName(String keyword) {
         return badgeRepository.findByBadgeNameContainingIgnoreCase(keyword);

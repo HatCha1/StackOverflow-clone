@@ -4,6 +4,7 @@ import com.singha.stackoverflow.springwebapp.dto.AnswerResponse;
 import com.singha.stackoverflow.springwebapp.entity.Answer;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.User;
+import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.repository.AnswerRepository;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
@@ -27,11 +28,11 @@ public class AnswerService {
 
     public AnswerResponse createAnswer(Long questionId, Long userId, String body) {
         Question question = questionRepository.findById(questionId).orElseThrow(
-                () -> new RuntimeException("Question not found")
+                () -> new ResourceNotFoundException("Question not found")
         );
 
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found")
+                () -> new ResourceNotFoundException("User not found")
         );
 
         Answer answer = new Answer();
@@ -65,7 +66,7 @@ public class AnswerService {
 
     public AnswerResponse getAnswerById(Long answerId) {
         Answer answer = answerRepository.findById(answerId).orElseThrow(
-                () -> new RuntimeException("Answer not found")
+                () -> new ResourceNotFoundException("Answer not found")
         );
 
         return convertToResponse(answer);
@@ -73,7 +74,7 @@ public class AnswerService {
 
     public AnswerResponse updateAnswer(Long answerId, String body) {
         Answer answer = answerRepository.findById(answerId).orElseThrow(
-                () -> new RuntimeException("Answer not found")
+                () -> new ResourceNotFoundException("Answer not found")
         );
 
         answer.setBody(body);
@@ -86,7 +87,7 @@ public class AnswerService {
 
     public void deleteAnswer(Long answerId) {
         Answer answer = answerRepository.findById(answerId).orElseThrow(
-                () -> new RuntimeException("Answer not found")
+                () -> new ResourceNotFoundException("Answer not found")
         );
 
         answerRepository.delete(answer);
@@ -94,7 +95,7 @@ public class AnswerService {
 
     public AnswerResponse acceptAnswer(Long answerId) {
         Answer answer = answerRepository.findById(answerId).orElseThrow(
-                () -> new RuntimeException("Answer not found")
+                () -> new ResourceNotFoundException("Answer not found")
         );
 
         answer.setIsAccepted(true);

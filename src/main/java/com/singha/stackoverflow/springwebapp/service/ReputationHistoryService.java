@@ -5,6 +5,7 @@ import com.singha.stackoverflow.springwebapp.entity.Answer;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.ReputationHistory;
 import com.singha.stackoverflow.springwebapp.entity.User;
+import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.repository.AnswerRepository;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
 import com.singha.stackoverflow.springwebapp.repository.ReputationHistoryRepository;
@@ -39,27 +40,27 @@ public class ReputationHistoryService {
             String reason
     ) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found")
+                () -> new ResourceNotFoundException("User not found")
         );
 
         User sourceUser = null;
         if (sourceUserId != null) {
             sourceUser = userRepository.findById(sourceUserId).orElseThrow(
-                    () -> new RuntimeException("Source user not found")
+                    () -> new ResourceNotFoundException("Source user not found")
             );
         }
 
         Question question = null;
         if (questionId != null) {
             question = questionRepository.findById(questionId).orElseThrow(
-                    () -> new RuntimeException("Question not found")
+                    () -> new ResourceNotFoundException("Question not found")
             );
         }
 
         Answer answer = null;
         if (answerId != null) {
             answer = answerRepository.findById(answerId).orElseThrow(
-                    () -> new RuntimeException("Answer not found")
+                    () -> new ResourceNotFoundException("Answer not found")
             );
         }
 

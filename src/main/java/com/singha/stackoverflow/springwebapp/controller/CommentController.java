@@ -76,10 +76,13 @@ public class CommentController {
     // 2. GET ONE specific comment by its ID
     @GetMapping("/{commentId}")
     public ResponseEntity<CommentResponseDTO> getCommentById(@PathVariable Long commentId) {
-        return commentService.getCommentById(commentId)
-                .map(this::convertToResponseDTO) // Convert entity to DTO if found
-                .map(ResponseEntity::ok)         // Wrap in HTTP 200 OK
-                .orElse(ResponseEntity.notFound().build()); // Return 404 if missing
+        Comment comment = commentService.getCommentById(commentId);
+
+        if (comment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(convertToResponseDTO(comment));
     }
 
     @PutMapping("/{commentId}")

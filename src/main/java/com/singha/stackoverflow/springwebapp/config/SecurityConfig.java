@@ -40,6 +40,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/questions/**").permitAll() // Anyone can browse question feeds
                         .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()  // Anyone can read comments
+                        .requestMatchers(HttpMethod.GET, "/api/answers/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/badges/**").permitAll()
 
                         // Protected Endpoints (Require a valid Authorization Bearer header token)
                         .anyRequest().authenticated()

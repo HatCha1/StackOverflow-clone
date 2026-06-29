@@ -4,6 +4,8 @@ import com.singha.stackoverflow.springwebapp.entity.Answer;
 import com.singha.stackoverflow.springwebapp.entity.Comment;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.User;
+import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
+import com.singha.stackoverflow.springwebapp.exception.UnauthorizedException;
 import com.singha.stackoverflow.springwebapp.repository.AnswerRepository;
 import com.singha.stackoverflow.springwebapp.repository.CommentRepository;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
@@ -31,9 +33,9 @@ public class CommentService {
 
     public Comment createQuestionComment(String body, Long userId, Long questionId) {
         User author = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Question question = questionRepository.findById(questionId)
-                .orElseThrow(() -> new RuntimeException("Question not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
         Comment comment = new Comment();
         comment.setBody(body);
@@ -47,10 +49,10 @@ public class CommentService {
 
     public Comment createAnswerComment(String body, Long userId, Long answerId) {
         User author = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Answer answer = answerRepository.findById(answerId)
-                .orElseThrow(() -> new RuntimeException("Answer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Answer not found"));
 
         Comment comment = new Comment();
         comment.setBody(body);
@@ -68,18 +70,20 @@ public class CommentService {
     }
 
     // 2. Get a single specific comment by its unique ID
-    public Optional<Comment> getCommentById(Long commentId) {
-        return commentRepository.findById(commentId);
+    public Comment getCommentById(Long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(
+                () -> new ResourceNotFoundException("Comment not found")
+        );
     }
 
     public Comment updateComment(Long commentId, Long userId, String newBody) {
         // 1. Fetch the existing comment
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found with ID: " + commentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with ID: " + commentId));
 
         // 2. Ownership Validation: Only the author can edit it!
         if (!comment.getUser().getUserId().equals(userId)) {
-            throw new RuntimeException("You are not authorized to edit this comment!");
+            throw new UnauthorizedException("You are not authorized to edit this comment!");
         }
 
         // 3. Update the mutable field
@@ -92,15 +96,14 @@ public class CommentService {
     public void deleteComment(Long commentId, Long userId) {
         // 1. Check if the comment even exists
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found with ID: " + commentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with ID: " + commentId));
 
         // 2. Security/Ownership Check: Does this comment belong to the requesting user?
         if (!comment.getUser().getUserId().equals(userId)) {
-            throw new RuntimeException("You are not authorized to delete this comment!");
+            throw new UnauthorizedException("You are not authorized to delete this comment!");
         }
 
         // 3. If passed, delete from PostgreSQL
         commentRepository.delete(comment);
     }
-
 }

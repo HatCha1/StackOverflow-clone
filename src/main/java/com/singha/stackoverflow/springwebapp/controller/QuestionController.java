@@ -46,10 +46,13 @@ public class QuestionController {
     // 2. READ ONE
     @GetMapping("/{id}")
     public ResponseEntity<QuestionResponseDTO> getQuestionById(@PathVariable Long id) {
-        return questionService.getQuestionById(id)
-                .map(this::convertToResponseDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Question question = questionService.getQuestionById(id);
+
+        if (question == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(convertToResponseDTO(question));
     }
 
     // 3. UPDATE

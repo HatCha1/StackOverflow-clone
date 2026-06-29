@@ -6,6 +6,8 @@ import com.singha.stackoverflow.springwebapp.entity.Badge;
 import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.entity.UserBadges;
 import com.singha.stackoverflow.springwebapp.entity.UserBadgesId;
+import com.singha.stackoverflow.springwebapp.exception.DuplicateResourceException;
+import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.repository.BadgeRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserBadgesRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
@@ -40,18 +42,18 @@ public class UserBadgesService {
         Long badgeId = request.getBadgeId();
 
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new RuntimeException("User not found")
+                () -> new ResourceNotFoundException("User not found")
         );
 
         Badge badge = badgeRepository.findById(badgeId).orElseThrow(
-                () -> new RuntimeException("Badge not found")
+                () -> new ResourceNotFoundException("Badge not found")
         );
 
         boolean alreadyHasBadge =
                 userBadgesRepository.existsByUser_UserIdAndBadge_BadgeId(userId, badgeId);
 
         if (alreadyHasBadge) {
-            throw new RuntimeException("User already has this badge");
+            throw new DuplicateResourceException("User already has this badge");
         }
 
         UserBadgesId id = new UserBadgesId(userId, badgeId);

@@ -35,10 +35,13 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long id) {
-        return userService.getUserById(id)
-                .map(this::convertToResponseDTO) // Safely maps Entity to DTO if found
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        User user = userService.getUserById(id);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(convertToResponseDTO(user));
     }
 
     // Helper method to convert Entity to DTO cleanly

@@ -30,11 +30,7 @@ public class BadgeController {
 
     @GetMapping("/api/badges/{badgeId}")
     public BadgeResponse getBadgeById(@PathVariable Long badgeId) {
-        Badge badge = badgeService.getBadgeById(badgeId).orElseThrow(
-                () -> new RuntimeException("Badge not found")
-        );
-
-        return convertToResponse(badge);
+        return convertToResponse(badgeService.getBadgeById(badgeId));
     }
 
     @GetMapping("/api/badges/type/{badgeType}")
