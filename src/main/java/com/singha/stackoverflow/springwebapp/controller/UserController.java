@@ -1,11 +1,16 @@
 package com.singha.stackoverflow.springwebapp.controller;
 
+import com.singha.stackoverflow.springwebapp.dto.LoginRequestDTO;
+import com.singha.stackoverflow.springwebapp.dto.LoginResponseDTO;
 import com.singha.stackoverflow.springwebapp.dto.UserRegisterDTO;
 import com.singha.stackoverflow.springwebapp.dto.UserResponseDTO;
 import com.singha.stackoverflow.springwebapp.entity.User;
+import com.singha.stackoverflow.springwebapp.repository.UserRepository;
+import com.singha.stackoverflow.springwebapp.security.JwtUtils;
 import com.singha.stackoverflow.springwebapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +19,15 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> registerUser(@RequestBody UserRegisterDTO registerDTO) {
@@ -31,6 +45,24 @@ public class UserController {
         // 3. Convert saved Database Entity -> Clean Outgoing Response DTO
         UserResponseDTO response = convertToResponseDTO(savedUser);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginDTO) {
+        // 1. Find the user by username
+        User user = userRepository.findByUsername(loginDTO.getUsername())
+                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+
+        // 2. Compare incoming raw password with the hashed password in PostgreSQL
+        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPasswordHash())) {
+            return ResponseEntity.badRequest().body("Invalid username or password");
+        }
+
+        // 3. If password matches, generate the cryptographically signed JWT
+        String token = jwtUtils.generateToken(user.getUsername());
+
+        // 4. Return the token to React/Postman
+        return ResponseEntity.ok(new LoginResponseDTO(token, user.getUsername()));
     }
 
     @GetMapping("/{id}")
