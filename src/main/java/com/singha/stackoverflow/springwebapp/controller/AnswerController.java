@@ -4,6 +4,7 @@ import com.singha.stackoverflow.springwebapp.dto.AnswerResponse;
 import com.singha.stackoverflow.springwebapp.dto.CreateAnswerRequest;
 import com.singha.stackoverflow.springwebapp.dto.UpdateAnswerRequest;
 import com.singha.stackoverflow.springwebapp.service.AnswerService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class AnswerController {
     private AnswerService answerService;
 
     @PostMapping("/api/questions/{questionId}/answers")
-    public AnswerResponse createAnswer(@PathVariable Long questionId, @RequestBody CreateAnswerRequest request) {
+    public AnswerResponse createAnswer(@PathVariable Long questionId, @Valid @RequestBody CreateAnswerRequest request) {
         return answerService.createAnswer(
                 questionId,
                 request.getUserId(),
@@ -40,7 +41,7 @@ public class AnswerController {
     }
 
     @PutMapping("/api/answers/{answerId}")
-    public AnswerResponse updateAnswer(@PathVariable Long answerId, @RequestBody UpdateAnswerRequest request) {
+    public AnswerResponse updateAnswer(@PathVariable Long answerId, @Valid @RequestBody UpdateAnswerRequest request) {
         return answerService.updateAnswer(answerId, request.getBody());
     }
 

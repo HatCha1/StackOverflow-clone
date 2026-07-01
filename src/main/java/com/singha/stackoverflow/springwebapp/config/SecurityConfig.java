@@ -1,11 +1,13 @@
-package com.singha.stackoverflow.springwebapp.security;
+package com.singha.stackoverflow.springwebapp.config;
 
+import com.singha.stackoverflow.springwebapp.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,10 +32,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable Cross-Origin Resource Sharing
-                .csrf(csrf -> csrf.disable()) // Disable CSRF as tokens protect us from session-hijacks
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF as tokens protect us from session-hijacks
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Set app stateless
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints

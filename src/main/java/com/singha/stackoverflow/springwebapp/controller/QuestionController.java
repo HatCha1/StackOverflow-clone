@@ -5,6 +5,7 @@ import com.singha.stackoverflow.springwebapp.dto.QuestionResponseDTO;
 import com.singha.stackoverflow.springwebapp.dto.QuestionUpdateDTO;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.service.QuestionService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class QuestionController {
     private QuestionService questionService;
 
     @PostMapping
-    public ResponseEntity<QuestionResponseDTO> createQuestion(@RequestBody QuestionCreateDTO createDTO) {
+    public ResponseEntity<QuestionResponseDTO> createQuestion(@Valid @RequestBody QuestionCreateDTO createDTO) {
         // 1. Process the request via service layer
         Question savedQuestion = questionService.createQuestion(
                 createDTO.getTitle(),
@@ -59,18 +60,14 @@ public class QuestionController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateQuestion(
             @PathVariable Long id,
-            @RequestBody QuestionUpdateDTO updateDTO) {
-        try {
-            Question updatedQuestion = questionService.updateQuestion(
-                    id,
-                    updateDTO.getUserId(),
-                    updateDTO.getTitle(),
-                    updateDTO.getBody()
-            );
-            return ResponseEntity.ok(convertToResponseDTO(updatedQuestion));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+            @Valid @RequestBody QuestionUpdateDTO updateDTO) {
+        Question updatedQuestion = questionService.updateQuestion(
+                id,
+                updateDTO.getUserId(),
+                updateDTO.getTitle(),
+                updateDTO.getBody()
+        );
+        return ResponseEntity.ok(convertToResponseDTO(updatedQuestion));
     }
 
     // 4. DELETE
@@ -78,12 +75,9 @@ public class QuestionController {
     public ResponseEntity<String> deleteQuestion(
             @PathVariable Long id,
             @RequestParam Long userId) {
-        try {
-            questionService.deleteQuestion(id, userId);
-            return ResponseEntity.ok("Question deleted successfully.");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+
+        questionService.deleteQuestion(id, userId);
+        return ResponseEntity.ok("Question deleted successfully.");
     }
 
     // conversion mapping helper method

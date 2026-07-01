@@ -4,7 +4,6 @@ import com.singha.stackoverflow.springwebapp.entity.Answer;
 import com.singha.stackoverflow.springwebapp.entity.Comment;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.User;
-import com.singha.stackoverflow.springwebapp.exception.BadRequestException;
 import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.exception.UnauthorizedException;
 import com.singha.stackoverflow.springwebapp.repository.AnswerRepository;
@@ -36,9 +35,7 @@ public class CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
-        if (body == null || body.isBlank()) {
-            throw new BadRequestException("Comment body cannot be empty");
-        }
+
         Comment comment = new Comment();
         comment.setBody(body);
         comment.setUser(author);
@@ -55,9 +52,7 @@ public class CommentService {
 
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Answer not found"));
-        if (body == null || body.isBlank()) {
-            throw new BadRequestException("Comment body cannot be empty");
-        }
+
         Comment comment = new Comment();
         comment.setBody(body);
         comment.setUser(author);
@@ -84,9 +79,7 @@ public class CommentService {
         // 1. Fetch the existing comment
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with ID: " + commentId));
-        if (newBody == null || newBody.isBlank()) {
-            throw new BadRequestException("Comment body cannot be empty");
-        }
+
         // 2. Ownership Validation: Only the author can edit it!
         if (!comment.getUser().getUserId().equals(userId)) {
             throw new UnauthorizedException("You are not authorized to edit this comment.");

@@ -4,7 +4,6 @@ import com.singha.stackoverflow.springwebapp.dto.AnswerResponse;
 import com.singha.stackoverflow.springwebapp.entity.Answer;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.User;
-import com.singha.stackoverflow.springwebapp.exception.BadRequestException;
 import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.repository.AnswerRepository;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
@@ -35,10 +34,6 @@ public class AnswerService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User not found")
         );
-
-        if (body == null || body.isBlank()) {
-            throw new BadRequestException("Answer body cannot be empty");
-        }
 
         Answer answer = new Answer();
         answer.setQuestion(question);
@@ -81,10 +76,6 @@ public class AnswerService {
         Answer answer = answerRepository.findById(answerId).orElseThrow(
                 () -> new ResourceNotFoundException("Answer not found")
         );
-
-        if (body == null || body.isBlank()) {
-            throw new BadRequestException("Answer body cannot be empty");
-        }
 
         answer.setBody(body);
         answer.setUpdatedAt(LocalDateTime.now());

@@ -3,6 +3,7 @@ package com.singha.stackoverflow.springwebapp.controller;
 import com.singha.stackoverflow.springwebapp.dto.BadgeResponse;
 import com.singha.stackoverflow.springwebapp.entity.Badge;
 import com.singha.stackoverflow.springwebapp.service.BadgeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ public class BadgeController {
     private BadgeService badgeService;
 
     @PostMapping("/api/badges")
-    public BadgeResponse createBadge(@RequestBody Badge badge) {
+    public BadgeResponse createBadge(@Valid @RequestBody Badge badge) {
         Badge savedBadge = badgeService.createBadge(badge);
         return convertToResponse(savedBadge);
     }

@@ -8,6 +8,7 @@ import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import com.singha.stackoverflow.springwebapp.security.JwtUtils;
 import com.singha.stackoverflow.springwebapp.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +31,7 @@ public class UserController {
     private JwtUtils jwtUtils;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> registerUser(@RequestBody UserRegisterDTO registerDTO) {
+    public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody UserRegisterDTO registerDTO) {
         // 1. Convert Incoming DTO -> Database Entity
         User userEntity = new User();
         userEntity.setUsername(registerDTO.getUsername());
