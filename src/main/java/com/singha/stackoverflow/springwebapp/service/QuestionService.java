@@ -2,6 +2,7 @@ package com.singha.stackoverflow.springwebapp.service;
 
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.User;
+import com.singha.stackoverflow.springwebapp.exception.BadRequestException;
 import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.exception.UnauthorizedException;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
@@ -24,7 +25,12 @@ public class QuestionService {
         // 1. Fetch the user object to establish the relationship
         User author = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
-
+        if (title == null || title.isBlank()) {
+            throw new BadRequestException("Question title cannot be empty");
+        }
+        if (body == null || body.isBlank()) {
+            throw new BadRequestException("Question body cannot be empty");
+        }
         // 2. Build the entity
         Question question = new Question();
         question.setTitle(title);
@@ -51,7 +57,12 @@ public class QuestionService {
     public Question updateQuestion(Long questionId, Long userId, String newTitle, String newBody) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
-
+        if (newTitle == null || newTitle.isBlank()) {
+            throw new BadRequestException("Question title cannot be empty");
+        }
+        if (newBody == null || newBody.isBlank()) {
+            throw new BadRequestException("Question body cannot be empty");
+        }
         // Validation Check: Does this question belong to the requesting user?
         if (!question.getUser().getUserId().equals(userId)) {
             throw new UnauthorizedException("You are not authorized to edit this question!");
