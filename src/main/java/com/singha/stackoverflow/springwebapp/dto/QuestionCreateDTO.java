@@ -10,6 +10,4 @@ public class QuestionCreateDTO {
 
     @NotBlank(message = "Body cannot be blank")
     private String body;
-
-    private Long userId; // The ID of the user asking the question
 }
