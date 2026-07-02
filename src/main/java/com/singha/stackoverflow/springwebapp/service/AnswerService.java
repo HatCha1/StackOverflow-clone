@@ -5,14 +5,17 @@ import com.singha.stackoverflow.springwebapp.entity.Answer;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
+import com.singha.stackoverflow.springwebapp.exception.UnauthorizedException;
 import com.singha.stackoverflow.springwebapp.repository.AnswerRepository;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AnswerService {
@@ -26,18 +29,22 @@ public class AnswerService {
     @Autowired
     private UserRepository userRepository;
 
-    public AnswerResponse createAnswer(Long questionId, Long userId, String body) {
+    public AnswerResponse createAnswer(Long questionId, String body) {
+
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Question question = questionRepository.findById(questionId).orElseThrow(
                 () -> new ResourceNotFoundException("Question not found")
         );
 
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new ResourceNotFoundException("User not found")
-        );
-
         Answer answer = new Answer();
         answer.setQuestion(question);
-        answer.setUser(user);
+        answer.setUser(currentUser);
         answer.setBody(body);
         answer.setIsAccepted(false);
         answer.setCreatedAt(LocalDateTime.now());
@@ -73,9 +80,21 @@ public class AnswerService {
     }
 
     public AnswerResponse updateAnswer(Long answerId, String body) {
+
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Answer answer = answerRepository.findById(answerId).orElseThrow(
                 () -> new ResourceNotFoundException("Answer not found")
         );
+
+        if (!answer.getUser().getUserId().equals(currentUser.getUserId())) {
+            throw new UnauthorizedException("You are not authorized to edit this answer");
+        }
 
         answer.setBody(body);
         answer.setUpdatedAt(LocalDateTime.now());
@@ -86,17 +105,41 @@ public class AnswerService {
     }
 
     public void deleteAnswer(Long answerId) {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Answer answer = answerRepository.findById(answerId).orElseThrow(
                 () -> new ResourceNotFoundException("Answer not found")
         );
+
+        if (!answer.getUser().getUserId().equals(currentUser.getUserId())) {
+            throw new UnauthorizedException("You are not authorized to delete this answer");
+        }
 
         answerRepository.delete(answer);
     }
 
     public AnswerResponse acceptAnswer(Long answerId) {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Answer answer = answerRepository.findById(answerId).orElseThrow(
                 () -> new ResourceNotFoundException("Answer not found")
         );
+
+        Question question = answer.getQuestion();
+
+        if (!question.getUser().getUserId().equals(currentUser.getUserId())) {
+            throw new UnauthorizedException("You are not authorized to accept this answer");
+        }
 
         answer.setIsAccepted(true);
         answer.setUpdatedAt(LocalDateTime.now());

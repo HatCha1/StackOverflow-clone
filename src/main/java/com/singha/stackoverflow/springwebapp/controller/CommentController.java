@@ -25,7 +25,6 @@ public class CommentController {
     public ResponseEntity<CommentResponseDTO> addCommentToQuestion(@Valid @RequestBody QuestionCommentCreateDTO createDTO) {
         Comment savedComment = commentService.createQuestionComment(
                 createDTO.getBody(),
-                createDTO.getUserId(),
                 createDTO.getQuestionId()
         );
         return ResponseEntity.ok(convertToResponseDTO(savedComment));
@@ -36,7 +35,6 @@ public class CommentController {
     public ResponseEntity<CommentResponseDTO> addCommentToAnswer(@Valid @RequestBody AnswerCommentCreateDTO createDTO) {
         Comment savedComment = commentService.createAnswerComment(
                 createDTO.getBody(),
-                createDTO.getUserId(),
                 createDTO.getAnswerId()
         );
         return ResponseEntity.ok(convertToResponseDTO(savedComment));
@@ -91,30 +89,16 @@ public class CommentController {
             @PathVariable Long commentId,
             @Valid @RequestBody CommentUpdateDTO updateDTO) {
 
-        try {
-            Comment updatedComment = commentService.updateComment(
-                    commentId,
-                    updateDTO.getUserId(),
-                    updateDTO.getBody()
-            );
-            return ResponseEntity.ok(convertToResponseDTO(updatedComment));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        Comment updatedComment = commentService.updateComment(
+                commentId,
+                updateDTO.getBody()
+        );
+        return ResponseEntity.ok(convertToResponseDTO(updatedComment));
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<String> deleteComment(
-            @PathVariable Long commentId,
-            @RequestParam Long userId) {
-
-        try {
-            commentService.deleteComment(commentId, userId);
-            return ResponseEntity.ok("Comment deleted successfully.");
-        } catch (RuntimeException e) {
-            // Returns a 400 Bad Request or 403 Forbidden
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
+        commentService.deleteComment(commentId);
+        return ResponseEntity.ok("Comment deleted successfully.");
     }
-
 }

@@ -20,7 +20,6 @@ public class AnswerController {
     public AnswerResponse createAnswer(@PathVariable Long questionId, @Valid @RequestBody CreateAnswerRequest request) {
         return answerService.createAnswer(
                 questionId,
-                request.getUserId(),
                 request.getBody()
         );
     }

@@ -11,9 +11,11 @@ import com.singha.stackoverflow.springwebapp.repository.CommentRepository;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CommentService {
@@ -30,15 +32,21 @@ public class CommentService {
     @Autowired
     private AnswerRepository answerRepository;
 
-    public Comment createQuestionComment(String body, Long userId, Long questionId) {
-        User author = userRepository.findById(userId)
+    public Comment createQuestionComment(String body, Long questionId) {
+
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
         Comment comment = new Comment();
         comment.setBody(body);
-        comment.setUser(author);
+        comment.setUser(currentUser);
         comment.setQuestion(question);
         comment.setAnswer(null);
         comment.setCreatedAt(LocalDateTime.now());
@@ -46,8 +54,12 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public Comment createAnswerComment(String body, Long userId, Long answerId) {
-        User author = userRepository.findById(userId)
+    public Comment createAnswerComment(String body, Long answerId) {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Answer answer = answerRepository.findById(answerId)
@@ -55,7 +67,7 @@ public class CommentService {
 
         Comment comment = new Comment();
         comment.setBody(body);
-        comment.setUser(author);
+        comment.setUser(currentUser);
         comment.setQuestion(null);
         comment.setAnswer(answer);
         comment.setCreatedAt(LocalDateTime.now());
@@ -75,14 +87,22 @@ public class CommentService {
         );
     }
 
-    public Comment updateComment(Long commentId, Long userId, String newBody) {
+    public Comment updateComment(Long commentId, String newBody) {
+
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         // 1. Fetch the existing comment
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with ID: " + commentId));
 
         // 2. Ownership Validation: Only the author can edit it!
-        if (!comment.getUser().getUserId().equals(userId)) {
-            throw new UnauthorizedException("You are not authorized to edit this comment.");
+        if (!comment.getUser().getUserId().equals(currentUser.getUserId())) {
+            throw new UnauthorizedException("You are not authorized to edit this comment");
         }
 
         // 3. Update the mutable field
@@ -92,14 +112,22 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public void deleteComment(Long commentId, Long userId) {
+    public void deleteComment(Long commentId) {
+
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         // 1. Check if the comment even exists
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with ID: " + commentId));
 
         // 2. Security/Ownership Check: Does this comment belong to the requesting user?
-        if (!comment.getUser().getUserId().equals(userId)) {
-            throw new UnauthorizedException("You are not authorized to delete this comment!");
+        if (!comment.getUser().getUserId().equals(currentUser.getUserId())) {
+            throw new UnauthorizedException("You are not authorized to delete this comment");
         }
 
         // 3. If passed, delete from PostgreSQL
