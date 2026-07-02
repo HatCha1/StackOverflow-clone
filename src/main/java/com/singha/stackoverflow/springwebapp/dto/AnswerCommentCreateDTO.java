@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 public class AnswerCommentCreateDTO {
-    private Long userId;
-
     private Long answerId;
 
     @NotBlank(message = "Body cannot be blank")

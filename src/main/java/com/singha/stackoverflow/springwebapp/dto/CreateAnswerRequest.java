@@ -8,9 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateAnswerRequest {
-
-    private Long userId;
-
     @NotBlank(message = "Body cannot be blank")
     private String body;
 }
