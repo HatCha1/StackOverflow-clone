@@ -6,6 +6,7 @@ import com.singha.stackoverflow.springwebapp.dto.AnswerCommentCreateDTO;
 import com.singha.stackoverflow.springwebapp.dto.CommentResponseDTO;
 import com.singha.stackoverflow.springwebapp.entity.Comment;
 import com.singha.stackoverflow.springwebapp.service.CommentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class CommentController {
 
     // 1. Post a comment to a Question thread
     @PostMapping("/question")
-    public ResponseEntity<CommentResponseDTO> addCommentToQuestion(@RequestBody QuestionCommentCreateDTO createDTO) {
+    public ResponseEntity<CommentResponseDTO> addCommentToQuestion(@Valid @RequestBody QuestionCommentCreateDTO createDTO) {
         Comment savedComment = commentService.createQuestionComment(
                 createDTO.getBody(),
                 createDTO.getUserId(),
@@ -32,7 +33,7 @@ public class CommentController {
 
     // 2. Post a comment to an Answer block
     @PostMapping("/answer")
-    public ResponseEntity<CommentResponseDTO> addCommentToAnswer(@RequestBody AnswerCommentCreateDTO createDTO) {
+    public ResponseEntity<CommentResponseDTO> addCommentToAnswer(@Valid @RequestBody AnswerCommentCreateDTO createDTO) {
         Comment savedComment = commentService.createAnswerComment(
                 createDTO.getBody(),
                 createDTO.getUserId(),
@@ -88,7 +89,7 @@ public class CommentController {
     @PutMapping("/{commentId}")
     public ResponseEntity<?> updateComment(
             @PathVariable Long commentId,
-            @RequestBody CommentUpdateDTO updateDTO) {
+            @Valid @RequestBody CommentUpdateDTO updateDTO) {
 
         try {
             Comment updatedComment = commentService.updateComment(

@@ -1,5 +1,6 @@
 package com.singha.stackoverflow.springwebapp.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -7,6 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateAnswerRequest {
-
+    @NotBlank(message = "Body cannot be blank")
     private String body;
 }

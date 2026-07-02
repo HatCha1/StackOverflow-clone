@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -83,7 +82,7 @@ public class CommentService {
 
         // 2. Ownership Validation: Only the author can edit it!
         if (!comment.getUser().getUserId().equals(userId)) {
-            throw new UnauthorizedException("You are not authorized to edit this comment!");
+            throw new UnauthorizedException("You are not authorized to edit this comment.");
         }
 
         // 3. Update the mutable field
