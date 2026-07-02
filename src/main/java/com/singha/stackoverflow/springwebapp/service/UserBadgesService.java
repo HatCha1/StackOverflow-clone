@@ -12,10 +12,12 @@ import com.singha.stackoverflow.springwebapp.repository.BadgeRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserBadgesRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserBadgesService {
@@ -28,9 +30,17 @@ public class UserBadgesService {
     @Autowired
     private BadgeRepository badgeRepository;
 
-    public List<UserBadgesResponse> getBadgesByUserId(Long userId) {
+    public List<UserBadgesResponse> getBadgesByUserId() {
+
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         List<UserBadges> userBadges =
-                userBadgesRepository.findByUser_UserIdOrderByAwardedAtDesc(userId);
+                userBadgesRepository.findByUser_UserIdOrderByAwardedAtDesc(currentUser.getUserId());
 
         return userBadges.stream()
                 .map(this::convertToResponse)
