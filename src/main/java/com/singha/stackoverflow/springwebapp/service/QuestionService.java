@@ -20,17 +20,16 @@ public class QuestionService {
     @Autowired
     private UserRepository userRepository;
 
-    public Question createQuestion(String title, String body, Long userId) {
-        // 1. Fetch the user object to establish the relationship
-        User author = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+    public Question createQuestion(String title, String body, String username) {
+        // Resolve the authenticated user from their username (extracted from JWT by the controller)
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
-        // 2. Build the entity
         Question question = new Question();
         question.setTitle(title);
         question.setBody(body);
-        question.setUser(author); // Maps the foreign key constraint
-        question.setCreatedAt(LocalDateTime.now()); // Satisfies the not-null column
+        question.setUser(author);
+        question.setCreatedAt(LocalDateTime.now());
 
         return questionRepository.save(question);
     }
@@ -48,12 +47,12 @@ public class QuestionService {
     }
 
     // UPDATE
-    public Question updateQuestion(Long questionId, Long userId, String newTitle, String newBody) {
+    public Question updateQuestion(Long questionId, String username, String newTitle, String newBody) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
-        // Validation Check: Does this question belong to the requesting user?
-        if (!question.getUser().getUserId().equals(userId)) {
+        // Verify the JWT-authenticated user actually owns this question
+        if (!question.getUser().getUsername().equals(username)) {
             throw new UnauthorizedException("You are not authorized to edit this question!");
         }
 
@@ -64,12 +63,12 @@ public class QuestionService {
     }
 
     // DELETE
-    public void deleteQuestion(Long questionId, Long userId) {
+    public void deleteQuestion(Long questionId, String username) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
-        // Validation Check
-        if (!question.getUser().getUserId().equals(userId)) {
+        // Verify the JWT-authenticated user actually owns this question
+        if (!question.getUser().getUsername().equals(username)) {
             throw new UnauthorizedException("You are not authorized to delete this question!");
         }
 

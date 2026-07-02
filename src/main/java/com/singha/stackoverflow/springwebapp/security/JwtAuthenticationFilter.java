@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 // For a simple setup, we mock up a UserDetails object using the extracted name
-                UserDetails userDetails = new User(username, "", new ArrayList<>());
+                UserDetails userDetails = new org.springframework.security.core.userdetails.User(username, "", new ArrayList<>());
 
                 if (jwtUtils.validateToken(token, userDetails.getUsername())) {
                     UsernamePasswordAuthenticationToken authToken =

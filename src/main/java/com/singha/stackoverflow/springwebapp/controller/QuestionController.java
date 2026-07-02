@@ -8,6 +8,7 @@ import com.singha.stackoverflow.springwebapp.service.QuestionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,17 +21,18 @@ public class QuestionController {
     private QuestionService questionService;
 
     @PostMapping
-    public ResponseEntity<QuestionResponseDTO> createQuestion(@Valid @RequestBody QuestionCreateDTO createDTO) {
-        // 1. Process the request via service layer
+    public ResponseEntity<QuestionResponseDTO> createQuestion(
+            @Valid @RequestBody QuestionCreateDTO createDTO,
+            Authentication authentication) {
+        
+        String username = authentication.getName();
         Question savedQuestion = questionService.createQuestion(
                 createDTO.getTitle(),
                 createDTO.getBody(),
-                createDTO.getUserId()
+                username
         );
 
-        // 2. Map entity output data back to a clean response DTO structure
         QuestionResponseDTO response = convertToResponseDTO(savedQuestion);
-
         return ResponseEntity.ok(response);
     }
 
@@ -47,12 +49,8 @@ public class QuestionController {
     // 2. READ ONE
     @GetMapping("/{id}")
     public ResponseEntity<QuestionResponseDTO> getQuestionById(@PathVariable Long id) {
+        // getQuestionById() throws ResourceNotFoundException if not found — no null check needed
         Question question = questionService.getQuestionById(id);
-
-        if (question == null) {
-            return ResponseEntity.notFound().build();
-        }
-
         return ResponseEntity.ok(convertToResponseDTO(question));
     }
 
@@ -60,10 +58,13 @@ public class QuestionController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateQuestion(
             @PathVariable Long id,
-            @Valid @RequestBody QuestionUpdateDTO updateDTO) {
+            @Valid @RequestBody QuestionUpdateDTO updateDTO,
+            Authentication authentication) {
+        
+        String username = authentication.getName();
         Question updatedQuestion = questionService.updateQuestion(
                 id,
-                updateDTO.getUserId(),
+                username,
                 updateDTO.getTitle(),
                 updateDTO.getBody()
         );
@@ -74,9 +75,10 @@ public class QuestionController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteQuestion(
             @PathVariable Long id,
-            @RequestParam Long userId) {
+            Authentication authentication) {
 
-        questionService.deleteQuestion(id, userId);
+        String username = authentication.getName();
+        questionService.deleteQuestion(id, username);
         return ResponseEntity.ok("Question deleted successfully.");
     }
 
