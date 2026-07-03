@@ -34,4 +34,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
         WHERE question_id = ?
         AND is_accepted = true;
     */
+
+    long countByUser_UserId(Long userId);
 }

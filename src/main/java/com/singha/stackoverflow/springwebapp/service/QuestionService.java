@@ -20,6 +20,9 @@ public class QuestionService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BadgeService badgeService;
+
     public Question createQuestion(String title, String body, String username) {
         // Resolve the authenticated user from their username (extracted from JWT by the controller)
         User author = userRepository.findByUsername(username)
@@ -31,7 +34,11 @@ public class QuestionService {
         question.setUser(author);
         question.setCreatedAt(LocalDateTime.now());
 
-        return questionRepository.save(question);
+        Question savedQuestion = questionRepository.save(question);
+
+        badgeService.checkBadges();
+
+        return savedQuestion;
     }
 
     // READ ALL
@@ -74,5 +81,4 @@ public class QuestionService {
 
         questionRepository.delete(question);
     }
-
 }

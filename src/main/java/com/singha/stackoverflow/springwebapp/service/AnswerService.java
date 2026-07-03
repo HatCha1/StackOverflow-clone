@@ -29,6 +29,9 @@ public class AnswerService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BadgeService badgeService;
+
     public AnswerResponse createAnswer(Long questionId, String body) {
 
         String username = Objects.requireNonNull(SecurityContextHolder.getContext()
@@ -50,7 +53,11 @@ public class AnswerService {
         answer.setCreatedAt(LocalDateTime.now());
         answer.setUpdatedAt(LocalDateTime.now());
 
-        return convertToResponse(answerRepository.save(answer));
+        Answer savedAnswer = answerRepository.save(answer);
+
+        badgeService.checkBadges();
+
+        return convertToResponse(savedAnswer);
     }
 
     public List<AnswerResponse> getAnswersByQuestionId(Long questionId) {
