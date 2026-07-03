@@ -2,8 +2,6 @@ package com.singha.stackoverflow.springwebapp.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -13,15 +11,16 @@ import java.util.Date;
 public class JwtUtils {
 
     // Generate a secure signing key for HS256 encryption
-    private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION_TIME = 86400000; // 24 hours in milliseconds
+    private final SecretKey key = Jwts.SIG.HS256.key().build();
 
     // 1. Generate token when user logs in successfully
     public String generateToken(String username) {
+        // 24 hours in milliseconds
+        long EXPIRATION_TIME = 86400000;
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key)
                 .compact();
     }
