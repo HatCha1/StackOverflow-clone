@@ -1,6 +1,5 @@
 package com.singha.stackoverflow.springwebapp.service;
 
-import com.singha.stackoverflow.springwebapp.dto.VoteRequestDTO;
 import com.singha.stackoverflow.springwebapp.dto.VoteResponseDTO;
 import com.singha.stackoverflow.springwebapp.entity.Answer;
 import com.singha.stackoverflow.springwebapp.entity.Question;
