@@ -1,5 +1,6 @@
 package com.singha.stackoverflow.springwebapp.entity;
 
+import com.singha.stackoverflow.springwebapp.enums.VoteType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -30,8 +31,9 @@ public class Vote {
     @JoinColumn(name = "answer_id")
     private Answer answer;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "vote_type", nullable = false, length = 10)
-    private String voteType;
+    private VoteType voteType;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default

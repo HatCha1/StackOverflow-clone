@@ -12,8 +12,10 @@ import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import com.singha.stackoverflow.springwebapp.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -32,12 +34,17 @@ public class VoteService {
     private AnswerRepository answerRepository;
 
     public VoteResponseDTO  voteQuestion(Long questionId, VoteRequestDTO request) {
-        User user = userRepository.findById(request.getUserId())
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
-        Optional<Vote> existingVote = voteRepository.findByUser_UserIdAndQuestion_QuestionId(user.getUserId(), questionId);
+        Optional<Vote> existingVote = voteRepository.findByUser_UserIdAndQuestion_QuestionId(currentUser.getUserId(), questionId);
 
         Vote vote;
         if (existingVote.isPresent()) {
@@ -45,7 +52,7 @@ public class VoteService {
             vote.setVoteType(request.getVoteType());
         } else {
             vote = Vote.builder()
-                    .user(user)
+                    .user(currentUser)
                     .question(question)
                     .voteType(request.getVoteType())
                     .build();
@@ -55,12 +62,17 @@ public class VoteService {
     }
 
     public VoteResponseDTO voteAnswer(Long answerId, VoteRequestDTO request) {
-        User user = userRepository.findById(request.getUserId())
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getName();
+
+        User currentUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Answer not found"));
 
-        Optional<Vote> existingVote = voteRepository.findByUser_UserIdAndAnswer_AnswerId(user.getUserId(), answerId);
+        Optional<Vote> existingVote = voteRepository.findByUser_UserIdAndAnswer_AnswerId(currentUser.getUserId(), answerId);
 
         Vote vote;
         if (existingVote.isPresent()) {
@@ -68,7 +80,7 @@ public class VoteService {
             vote.setVoteType(request.getVoteType());
         } else {
             vote = Vote.builder()
-                    .user(user)
+                    .user(currentUser)
                     .answer(answer)
                     .voteType(request.getVoteType())
                     .build();

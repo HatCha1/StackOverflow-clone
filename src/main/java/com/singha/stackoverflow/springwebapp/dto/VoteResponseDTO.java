@@ -1,5 +1,6 @@
 package com.singha.stackoverflow.springwebapp.dto;
 
+import com.singha.stackoverflow.springwebapp.enums.VoteType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,5 +11,5 @@ public class VoteResponseDTO {
     private Long userId;
     private Long questionId;
     private Long answerId;
-    private String voteType;
+    private VoteType voteType;
 }
