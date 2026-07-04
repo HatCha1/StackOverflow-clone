@@ -5,6 +5,8 @@ import com.singha.stackoverflow.springwebapp.entity.Answer;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.ReputationHistory;
 import com.singha.stackoverflow.springwebapp.entity.User;
+import com.singha.stackoverflow.springwebapp.enums.VoteType;
+import com.singha.stackoverflow.springwebapp.exception.BadRequestException;
 import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.repository.AnswerRepository;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
@@ -33,7 +35,97 @@ public class ReputationHistoryService {
     @Autowired
     private AnswerRepository answerRepository;
 
-    public ReputationHistory createReputationHistory(
+    public void applyQuestionVoteReputation(User questionOwner, Long questionId, VoteType oldVoteType, VoteType newVoteType) {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Question question = questionRepository.findById(questionId).orElseThrow(
+                () -> new ResourceNotFoundException("Question not found"));
+
+        int change = calculateQuestionReputationChange(oldVoteType, newVoteType);
+
+        if (change == 0 && oldVoteType != newVoteType) {
+            throw new BadRequestException("Reputation change can't be zero");
+        }
+
+        createReputationHistory(
+                questionOwner.getUserId(),       // receiver
+                currentUser.getUserId(),       // voter/source user
+                question.getQuestionId(),
+                null,
+                change,
+                "Answer upvoted"
+        );
+    }
+
+    public void applyAnswerVoteReputation(User answerOwner, Long answerId, VoteType oldVoteType, VoteType newVoteType) {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Answer answer = answerRepository.findById(answerId).orElseThrow(
+                () -> new ResourceNotFoundException("Answer not found"));
+
+        int change = calculateAnswerReputationChange(oldVoteType, newVoteType);
+
+        if (change == 0 && oldVoteType != newVoteType) {
+            throw new BadRequestException("Reputation change can't be zero");
+        }
+
+        createReputationHistory(
+                answerOwner.getUserId(),       // receiver
+                currentUser.getUserId(),       // voter/source user
+                null,
+                answer.getAnswerId(),
+                change,
+                "Answer upvoted"
+        );
+    }
+
+    private int calculateQuestionReputationChange(VoteType oldVoteType, VoteType newVoteType) {
+        int oldValue = getQuestionVoteValue(oldVoteType);
+        int newValue = getQuestionVoteValue(newVoteType);
+
+        return newValue - oldValue;
+    }
+
+    private int calculateAnswerReputationChange(VoteType oldVoteType, VoteType newVoteType) {
+        int oldValue = getAnswerVoteValue(oldVoteType);
+        int newValue = getAnswerVoteValue(newVoteType);
+
+        return newValue - oldValue;
+    }
+
+    private int getQuestionVoteValue(VoteType voteType) {
+        if (voteType == null) {
+            throw new BadRequestException("Vote type can't be null");
+        }
+
+        return switch (voteType) {
+            case UPVOTE -> 5;
+            case DOWNVOTE -> -2;
+        };
+    }
+
+    private int getAnswerVoteValue(VoteType voteType) {
+        if (voteType == null) {
+            throw new BadRequestException("Vote type can't be null");
+        }
+
+        return switch (voteType) {
+            case UPVOTE -> 10;
+            case DOWNVOTE -> -2;
+        };
+    }
+
+    public void createReputationHistory(
             Long userId,
             Long sourceUserId,
             Long questionId,
@@ -66,17 +158,21 @@ public class ReputationHistoryService {
             );
         }
 
-        return reputationHistoryRepository.save(
+        user.setReputation(user.getReputation() + reputationChange);
+
+        userRepository.save(user);
+
+        reputationHistoryRepository.save(
                 ReputationHistory.builder()
-                .user(user)
-                .sourceUser(sourceUser)
-                .question(question)
-                .answer(answer)
-                .reputationChange(reputationChange)
-                .reason(reason)
-                .createdAt(LocalDateTime.now())
-                .build()
-                );
+                        .user(user)
+                        .sourceUser(sourceUser)
+                        .question(question)
+                        .answer(answer)
+                        .reputationChange(reputationChange)
+                        .reason(reason)
+                        .createdAt(LocalDateTime.now())
+                        .build()
+        );
     }
 
     public List<ReputationHistoryResponse> getReputationHistoryByUserId() {

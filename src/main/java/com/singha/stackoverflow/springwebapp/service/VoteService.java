@@ -6,6 +6,8 @@ import com.singha.stackoverflow.springwebapp.entity.Answer;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.entity.Vote;
+import com.singha.stackoverflow.springwebapp.enums.VoteType;
+import com.singha.stackoverflow.springwebapp.exception.BadRequestException;
 import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.repository.AnswerRepository;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
@@ -33,7 +35,10 @@ public class VoteService {
     @Autowired
     private AnswerRepository answerRepository;
 
-    public VoteResponseDTO  voteQuestion(Long questionId, VoteRequestDTO request) {
+    @Autowired
+    private ReputationHistoryService reputationHistoryService;
+
+    public VoteResponseDTO  voteQuestion(Long questionId, VoteType voteType) {
         String username = Objects.requireNonNull(SecurityContextHolder.getContext()
                         .getAuthentication())
                         .getName();
@@ -44,27 +49,45 @@ public class VoteService {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
-        Optional<Vote> existingVote = voteRepository.findByUser_UserIdAndQuestion_QuestionId(currentUser.getUserId(), questionId);
+        User questionOwner = question.getUser();
+
+        if (questionOwner.getUserId().equals(currentUser.getUserId())) {
+            throw new BadRequestException("You cannot vote your own question");
+        }
+
+        Optional<Vote> existingVote = voteRepository.findByUser_UserIdAndQuestion_QuestionId(currentUser.getUserId(), question.getQuestionId());
 
         Vote vote;
+        VoteType oldVoteType = null;
+
         if (existingVote.isPresent()) {
             vote = existingVote.get();
-            vote.setVoteType(request.getVoteType());
+            oldVoteType = vote.getVoteType();
+            vote.setVoteType(voteType);
         } else {
             vote = Vote.builder()
                     .user(currentUser)
                     .question(question)
-                    .voteType(request.getVoteType())
+                    .voteType(voteType)
                     .build();
         }
 
-        return convertToResponse(voteRepository.save(vote));
+        Vote savedVote = voteRepository.save(vote);
+
+        reputationHistoryService.applyQuestionVoteReputation(
+                questionOwner,
+                question.getQuestionId(),
+                oldVoteType,
+                voteType
+        );
+
+        return convertToResponse(savedVote);
     }
 
-    public VoteResponseDTO voteAnswer(Long answerId, VoteRequestDTO request) {
+    public VoteResponseDTO voteAnswer(Long answerId, VoteType voteType) {
         String username = Objects.requireNonNull(SecurityContextHolder.getContext()
                         .getAuthentication())
-                .getName();
+                        .getName();
 
         User currentUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -72,21 +95,39 @@ public class VoteService {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Answer not found"));
 
-        Optional<Vote> existingVote = voteRepository.findByUser_UserIdAndAnswer_AnswerId(currentUser.getUserId(), answerId);
+        User answerOwner = answer.getUser();
+
+        if (answerOwner.getUserId().equals(currentUser.getUserId())) {
+            throw new BadRequestException("You cannot vote your own answer");
+        }
+
+        Optional<Vote> existingVote = voteRepository.findByUser_UserIdAndAnswer_AnswerId(currentUser.getUserId(), answer.getAnswerId());
 
         Vote vote;
+        VoteType oldVoteType = null;
+
         if (existingVote.isPresent()) {
             vote = existingVote.get();
-            vote.setVoteType(request.getVoteType());
+            oldVoteType = vote.getVoteType();
+            vote.setVoteType(voteType);
         } else {
             vote = Vote.builder()
                     .user(currentUser)
                     .answer(answer)
-                    .voteType(request.getVoteType())
+                    .voteType(voteType)
                     .build();
         }
 
-        return convertToResponse(voteRepository.save(vote));
+        Vote savedVote = voteRepository.save(vote);
+
+        reputationHistoryService.applyAnswerVoteReputation(
+                answerOwner,
+                answer.getAnswerId(),
+                oldVoteType,
+                voteType
+        );
+
+        return convertToResponse(savedVote);
     }
 
     private VoteResponseDTO convertToResponse(Vote vote) {
