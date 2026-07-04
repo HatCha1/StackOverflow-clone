@@ -14,7 +14,7 @@ public class ReputationHistoryController {
     private ReputationHistoryService reputationHistoryService;
 
     @GetMapping
-    public List<ReputationHistoryResponse> getReputationHistoryByUserId(@PathVariable Long userId) {
-        return reputationHistoryService.getReputationHistoryByUserId(userId);
+    public List<ReputationHistoryResponse> getReputationHistoryByUserId() {
+        return reputationHistoryService.getReputationHistoryByUserId();
     }
 }

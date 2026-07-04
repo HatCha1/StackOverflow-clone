@@ -11,10 +11,12 @@ import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
 import com.singha.stackoverflow.springwebapp.repository.ReputationHistoryRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ReputationHistoryService {
@@ -77,9 +79,16 @@ public class ReputationHistoryService {
                 );
     }
 
-    public List<ReputationHistoryResponse> getReputationHistoryByUserId(Long userId) {
+    public List<ReputationHistoryResponse> getReputationHistoryByUserId() {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         List<ReputationHistory> histories =
-                reputationHistoryRepository.findByUser_UserIdOrderByCreatedAtDesc(userId);
+                reputationHistoryRepository.findByUser_UserIdOrderByCreatedAtDesc(currentUser.getUserId());
 
         return histories.stream() // Just like rust .iter().map()
                 .map(this::convertToResponse)
