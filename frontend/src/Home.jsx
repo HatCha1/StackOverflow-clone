@@ -101,6 +101,10 @@ function QuestionCard({ question, onSelect }) {
       {/* Stats column */}
       <div className="question-stats">
         <div className="stat-item">
+          <span className="stat-value">{question.voteCount ?? 0}</span>
+          <span className="stat-label">votes</span>
+        </div>
+        <div className="stat-item">
           <span className="stat-value">{question.viewCount ?? 0}</span>
           <span className="stat-label">views</span>
         </div>
