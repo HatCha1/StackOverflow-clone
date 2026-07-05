@@ -12,4 +12,5 @@ public class VoteResponseDTO {
     private Long questionId;
     private Long answerId;
     private VoteType voteType;
+    private Long voteScore;
 }

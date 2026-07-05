@@ -28,4 +28,14 @@ public class VoteController {
             @Valid @RequestBody VoteRequestDTO request) {
         return ResponseEntity.ok(voteService.voteAnswer(answerId, request.getVoteType()));
     }
+
+    @GetMapping("/questions/{questionId}/score")
+    public ResponseEntity<Long> getQuestionVoteScore(@PathVariable Long questionId) {
+        return ResponseEntity.ok(voteService.getQuestionVoteScore(questionId));
+    }
+
+    @GetMapping("/answers/{answerId}/score")
+    public ResponseEntity<Long> getAnswerVoteScore(@PathVariable Long answerId) {
+        return ResponseEntity.ok(voteService.getAnswerVoteScore(answerId));
+    }
 }

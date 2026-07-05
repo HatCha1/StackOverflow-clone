@@ -73,6 +73,7 @@ public class VoteService {
                                                 .userId(currentUser.getUserId())
                                                 .questionId(question.getQuestionId())
                                                 .voteType(null)
+                                                .voteScore(getQuestionVoteScore(question.getQuestionId()))
                                                 .build();
                         }
 
@@ -85,7 +86,7 @@ public class VoteService {
 
                         return convertToResponse(updatedVote);
                 } else {
-                        // 3. NEW VOTE PATH: Create brand new vote
+                        // 3. NEW VOTE PATH: Create brand-new vote
                         Vote newVote = Vote.builder()
                                         .user(currentUser)
                                         .question(question)
@@ -122,7 +123,7 @@ public class VoteService {
                                 answer.getAnswerId());
 
                 Vote vote;
-                VoteType oldVoteType = null;
+                VoteType oldVoteType;
 
                 if (existingVote.isPresent()) {
                         vote = existingVote.get();
@@ -138,6 +139,7 @@ public class VoteService {
                                                 .userId(currentUser.getUserId())
                                                 .answerId(answer.getAnswerId())
                                                 .voteType(null)
+                                                .voteScore(getQuestionVoteScore(answer.getAnswerId()))
                                                 .build();
                         }
                         vote.setVoteType(voteType);
@@ -149,7 +151,7 @@ public class VoteService {
                         return convertToResponse(updatedVote);
 
                 } else {
-                        // 3. NEW VOTE PATH: Create brand new vote
+                        // 3. NEW VOTE PATH: Create brand-new vote
                         Vote newVote = Vote.builder()
                                         .user(currentUser)
                                         .answer(answer)
@@ -164,13 +166,39 @@ public class VoteService {
                 }
         }
 
+        public long getQuestionVoteScore(Long questionId) {
+                long upvotes = voteRepository.countByQuestion_QuestionIdAndVoteType(questionId, VoteType.UPVOTE);
+                long downvotes = voteRepository.countByQuestion_QuestionIdAndVoteType(questionId, VoteType.DOWNVOTE);
+
+                return upvotes - downvotes;
+        }
+
+        public long getAnswerVoteScore(Long answerId) {
+                long upvotes = voteRepository.countByAnswer_AnswerIdAndVoteType(answerId, VoteType.UPVOTE);
+                long downvotes = voteRepository.countByAnswer_AnswerIdAndVoteType(answerId, VoteType.DOWNVOTE);
+
+                return upvotes - downvotes;
+        }
+
         private VoteResponseDTO convertToResponse(Vote vote) {
+                Long questionId = vote.getQuestion() != null ? vote.getQuestion().getQuestionId() : null;
+                Long answerId = vote.getAnswer() != null ? vote.getAnswer().getAnswerId() : null;
+
+                Long voteScore = null;
+
+                if (questionId != null) {
+                        voteScore = getQuestionVoteScore(questionId);
+                } else if (answerId != null) {
+                        voteScore = getAnswerVoteScore(answerId);
+                }
+
                 return VoteResponseDTO.builder()
                                 .voteId(vote.getVoteId())
                                 .userId(vote.getUser().getUserId())
                                 .questionId(vote.getQuestion() != null ? vote.getQuestion().getQuestionId() : null)
                                 .answerId(vote.getAnswer() != null ? vote.getAnswer().getAnswerId() : null)
                                 .voteType(vote.getVoteType())
+                                .voteScore(voteScore)
                                 .build();
         }
 }
