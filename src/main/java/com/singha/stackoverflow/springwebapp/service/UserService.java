@@ -2,6 +2,7 @@ package com.singha.stackoverflow.springwebapp.service;
 
 import com.singha.stackoverflow.springwebapp.dto.ChangePasswordDTO;
 import com.singha.stackoverflow.springwebapp.dto.UserDeleteConfirmDTO;
+import com.singha.stackoverflow.springwebapp.dto.UserResponseDTO;
 import com.singha.stackoverflow.springwebapp.dto.UserUpdateDTO;
 import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.exception.BadRequestException;
@@ -11,6 +12,7 @@ import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
@@ -21,7 +23,8 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User createUser(User user) {
+    @Transactional
+    public UserResponseDTO createUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new DuplicateResourceException("Email already exists!");
         }
@@ -29,17 +32,19 @@ public class UserService {
         String hashedPassword = passwordEncoder.encode(user.getPasswordHash());
         user.setPasswordHash(hashedPassword);
         user.setCreatedAt(java.time.LocalDateTime.now());
-        return userRepository.save(user);
+        return toDTO(userRepository.save(user));
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("User not found")
-        );
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUserById(Long id) {
+        return userRepository.findById(id)
+                .map(this::toDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     // UPDATE — patch: only apply fields that were provided in the DTO
-    public User updateUser(String username, UserUpdateDTO updateDTO) {
+    @Transactional
+    public UserResponseDTO updateUser(String username, UserUpdateDTO updateDTO) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
@@ -47,14 +52,16 @@ public class UserService {
             user.setDisplayName(updateDTO.getDisplayName());
         }
 
-        if (updateDTO.getBio() != null && !updateDTO.getBio().isBlank()) {
-            user.setBio(updateDTO.getBio());
+        if (updateDTO.getBio() != null) {
+            // Allow blank string to clear bio (fix for issue #10)
+            user.setBio(updateDTO.getBio().isBlank() ? null : updateDTO.getBio());
         }
 
-        return userRepository.save(user);
+        return toDTO(userRepository.save(user));
     }
 
     // CHANGE PASSWORD — verifies current password before applying the new one
+    @Transactional
     public void changePassword(String username, ChangePasswordDTO dto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
@@ -70,6 +77,7 @@ public class UserService {
     }
 
     // DELETE — requires the user to confirm their identity and type the phrase exactly
+    @Transactional
     public void deleteUser(String username, UserDeleteConfirmDTO confirmDTO) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
@@ -88,5 +96,18 @@ public class UserService {
         }
 
         userRepository.delete(user);
+    }
+
+    // Private mapping helper — single source of truth for User → DTO conversion
+    public UserResponseDTO toDTO(User user) {
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setUserId(user.getUserId());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setBio(user.getBio());
+        dto.setReputation(user.getReputation());
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setDisplayName(user.getDisplayName());
+        return dto;
     }
 }
