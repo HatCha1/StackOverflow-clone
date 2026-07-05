@@ -89,11 +89,15 @@ function QuestionSkeleton() {
 
 // ─── Question Card ───
 
-function QuestionCard({ question }) {
+function QuestionCard({ question, onSelect }) {
   const isClosed = question.isClosed;
 
   return (
-    <article className={`question-card ${isClosed ? 'question-card--closed' : ''}`}>
+    <article
+      className={`question-card ${isClosed ? 'question-card--closed' : ''}`}
+      onClick={() => onSelect(question.questionId)}
+      style={{ cursor: 'pointer' }}
+    >
       {/* Stats column */}
       <div className="question-stats">
         <div className="stat-item">
@@ -140,7 +144,7 @@ function QuestionCard({ question }) {
 
 // ─── Home Page ───
 
-export default function Home() {
+export default function Home({ onSelectQuestion }) {
   const [questions, setQuestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -221,7 +225,7 @@ export default function Home() {
           {!isLoading && !error && questions.length > 0 && (
             <div className="questions-list">
               {questions.map((q) => (
-                <QuestionCard key={q.questionId} question={q} />
+                <QuestionCard key={q.questionId} question={q} onSelect={onSelectQuestion} />
               ))}
             </div>
           )}
