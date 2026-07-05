@@ -16,7 +16,7 @@ public class UserBadgesController {
     @Autowired
     private UserBadgesService userBadgesService;
 
-    @GetMapping("/api/users/{userId}/badges")
+    @GetMapping("/api/users/badges")
     public List<UserBadgesResponse> getUserBadgesByUserId() {
         return userBadgesService.getBadgesByUserId();
     }

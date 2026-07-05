@@ -23,198 +23,203 @@ import java.util.Objects;
 @Service
 public class ReputationHistoryService {
 
-    @Autowired
-    private ReputationHistoryRepository reputationHistoryRepository;
+        @Autowired
+        private ReputationHistoryRepository reputationHistoryRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Autowired
-    private QuestionRepository questionRepository;
+        @Autowired
+        private QuestionRepository questionRepository;
 
-    @Autowired
-    private AnswerRepository answerRepository;
+        @Autowired
+        private AnswerRepository answerRepository;
 
-    public void applyQuestionVoteReputation(User questionOwner, Long questionId, VoteType oldVoteType, VoteType newVoteType) {
-        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
-                        .getAuthentication())
-                        .getName();
+        public void applyQuestionVoteReputation(User questionOwner, Long questionId, VoteType oldVoteType,
+                        VoteType newVoteType) {
+                String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                                .getAuthentication())
+                                .getName();
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                User currentUser = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        Question question = questionRepository.findById(questionId).orElseThrow(
-                () -> new ResourceNotFoundException("Question not found"));
+                Question question = questionRepository.findById(questionId).orElseThrow(
+                                () -> new ResourceNotFoundException("Question not found"));
 
-        int change = calculateQuestionReputationChange(oldVoteType, newVoteType);
+                int change = calculateQuestionReputationChange(oldVoteType, newVoteType);
 
-        if (change == 0 && oldVoteType != newVoteType) {
-            throw new BadRequestException("Reputation change can't be zero");
+                String reason;
+                if (change == -getQuestionVoteValue(oldVoteType)) {
+                        reason = "Cancelled vote";
+
+                } else if (change > 0) {
+                        reason = "Question upvoted";
+                } else {
+                        reason = "Question downvoted";
+                }
+
+                createReputationHistory(
+                                questionOwner.getUserId(), // receiver
+                                currentUser.getUserId(), // voter/source user
+                                question.getQuestionId(),
+                                null,
+                                change,
+                                reason);
         }
 
-        createReputationHistory(
-                questionOwner.getUserId(),       // receiver
-                currentUser.getUserId(),       // voter/source user
-                question.getQuestionId(),
-                null,
-                change,
-                "Answer upvoted"
-        );
-    }
+        public void applyAnswerVoteReputation(User answerOwner, Long answerId, VoteType oldVoteType,
+                        VoteType newVoteType) {
+                String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                                .getAuthentication())
+                                .getName();
 
-    public void applyAnswerVoteReputation(User answerOwner, Long answerId, VoteType oldVoteType, VoteType newVoteType) {
-        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
-                        .getAuthentication())
-                .getName();
+                User currentUser = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                Answer answer = answerRepository.findById(answerId).orElseThrow(
+                                () -> new ResourceNotFoundException("Answer not found"));
 
-        Answer answer = answerRepository.findById(answerId).orElseThrow(
-                () -> new ResourceNotFoundException("Answer not found"));
+                int change = calculateAnswerReputationChange(oldVoteType, newVoteType);
 
-        int change = calculateAnswerReputationChange(oldVoteType, newVoteType);
+                String reason;
+                if (change == -getAnswerVoteValue(oldVoteType)) {
+                        reason = "Cancelled vote";
+                } else if (change > 0) {
+                        reason = "Answer upvoted";
+                } else {
+                        reason = "Answer downvoted";
+                }
 
-        if (change == 0 && oldVoteType != newVoteType) {
-            throw new BadRequestException("Reputation change can't be zero");
+                createReputationHistory(
+                                answerOwner.getUserId(), // receiver
+                                currentUser.getUserId(), // voter/source user
+                                null,
+                                answer.getAnswerId(),
+                                change,
+                                reason);
         }
 
-        createReputationHistory(
-                answerOwner.getUserId(),       // receiver
-                currentUser.getUserId(),       // voter/source user
-                null,
-                answer.getAnswerId(),
-                change,
-                "Answer upvoted"
-        );
-    }
+        private int calculateQuestionReputationChange(VoteType oldVoteType, VoteType newVoteType) {
+                int oldValue = getQuestionVoteValue(oldVoteType);
+                int newValue = getQuestionVoteValue(newVoteType);
 
-    private int calculateQuestionReputationChange(VoteType oldVoteType, VoteType newVoteType) {
-        int oldValue = getQuestionVoteValue(oldVoteType);
-        int newValue = getQuestionVoteValue(newVoteType);
-
-        return newValue - oldValue;
-    }
-
-    private int calculateAnswerReputationChange(VoteType oldVoteType, VoteType newVoteType) {
-        int oldValue = getAnswerVoteValue(oldVoteType);
-        int newValue = getAnswerVoteValue(newVoteType);
-
-        return newValue - oldValue;
-    }
-
-    private int getQuestionVoteValue(VoteType voteType) {
-        if (voteType == null) {
-            throw new BadRequestException("Vote type can't be null");
+                return newValue - oldValue == 0 ? -oldValue : newValue - oldValue;
         }
 
-        return switch (voteType) {
-            case UPVOTE -> 5;
-            case DOWNVOTE -> -2;
-        };
-    }
+        private int calculateAnswerReputationChange(VoteType oldVoteType, VoteType newVoteType) {
+                int oldValue = getAnswerVoteValue(oldVoteType);
+                int newValue = getAnswerVoteValue(newVoteType);
 
-    private int getAnswerVoteValue(VoteType voteType) {
-        if (voteType == null) {
-            throw new BadRequestException("Vote type can't be null");
+                return newValue - oldValue == 0 ? -oldValue : newValue - oldValue;
         }
 
-        return switch (voteType) {
-            case UPVOTE -> 10;
-            case DOWNVOTE -> -2;
-        };
-    }
+        private int getQuestionVoteValue(VoteType voteType) {
+                if (voteType == null) {
+                        return 0;
+                }
 
-    public void createReputationHistory(
-            Long userId,
-            Long sourceUserId,
-            Long questionId,
-            Long answerId,
-            Integer reputationChange,
-            String reason
-    ) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new ResourceNotFoundException("User not found")
-        );
-
-        User sourceUser = null;
-        if (sourceUserId != null) {
-            sourceUser = userRepository.findById(sourceUserId).orElseThrow(
-                    () -> new ResourceNotFoundException("Source user not found")
-            );
+                return switch (voteType) {
+                        case UPVOTE -> 5;
+                        case DOWNVOTE -> -2;
+                };
         }
 
-        Question question = null;
-        if (questionId != null) {
-            question = questionRepository.findById(questionId).orElseThrow(
-                    () -> new ResourceNotFoundException("Question not found")
-            );
+        private int getAnswerVoteValue(VoteType voteType) {
+                if (voteType == null) {
+                        return 0;
+                }
+
+                return switch (voteType) {
+                        case UPVOTE -> 10;
+                        case DOWNVOTE -> -2;
+                };
         }
 
-        Answer answer = null;
-        if (answerId != null) {
-            answer = answerRepository.findById(answerId).orElseThrow(
-                    () -> new ResourceNotFoundException("Answer not found")
-            );
+        public void createReputationHistory(
+                        Long userId,
+                        Long sourceUserId,
+                        Long questionId,
+                        Long answerId,
+                        Integer reputationChange,
+                        String reason) {
+                User user = userRepository.findById(userId).orElseThrow(
+                                () -> new ResourceNotFoundException("User not found"));
+
+                User sourceUser = null;
+                if (sourceUserId != null) {
+                        sourceUser = userRepository.findById(sourceUserId).orElseThrow(
+                                        () -> new ResourceNotFoundException("Source user not found"));
+                }
+
+                Question question = null;
+                if (questionId != null) {
+                        question = questionRepository.findById(questionId).orElseThrow(
+                                        () -> new ResourceNotFoundException("Question not found"));
+                }
+
+                Answer answer = null;
+                if (answerId != null) {
+                        answer = answerRepository.findById(answerId).orElseThrow(
+                                        () -> new ResourceNotFoundException("Answer not found"));
+                }
+
+                user.setReputation(user.getReputation() + reputationChange);
+
+                userRepository.save(user);
+
+                reputationHistoryRepository.save(
+                                ReputationHistory.builder()
+                                                .user(user)
+                                                .sourceUser(sourceUser)
+                                                .question(question)
+                                                .answer(answer)
+                                                .reputationChange(reputationChange)
+                                                .reason(reason)
+                                                .createdAt(LocalDateTime.now())
+                                                .build());
         }
 
-        user.setReputation(user.getReputation() + reputationChange);
+        public List<ReputationHistoryResponse> getReputationHistoryByUserId() {
+                String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                                .getAuthentication())
+                                .getName();
 
-        userRepository.save(user);
+                User currentUser = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        reputationHistoryRepository.save(
-                ReputationHistory.builder()
-                        .user(user)
-                        .sourceUser(sourceUser)
-                        .question(question)
-                        .answer(answer)
-                        .reputationChange(reputationChange)
-                        .reason(reason)
-                        .createdAt(LocalDateTime.now())
-                        .build()
-        );
-    }
+                List<ReputationHistory> histories = reputationHistoryRepository
+                                .findByUser_UserIdOrderByCreatedAtDesc(currentUser.getUserId());
 
-    public List<ReputationHistoryResponse> getReputationHistoryByUserId() {
-        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
-                        .getAuthentication())
-                .getName();
+                return histories.stream() // Just like rust .iter().map()
+                                .map(this::convertToResponse)
+                                .toList();
+        }
 
-        User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        private ReputationHistoryResponse convertToResponse(ReputationHistory history) {
+                return ReputationHistoryResponse.builder()
+                                .reputationId(history.getReputationId())
 
-        List<ReputationHistory> histories =
-                reputationHistoryRepository.findByUser_UserIdOrderByCreatedAtDesc(currentUser.getUserId());
+                                .userId(history.getUser().getUserId())
+                                .username(history.getUser().getUsername())
 
-        return histories.stream() // Just like rust .iter().map()
-                .map(this::convertToResponse)
-                .toList();
-    }
+                                .sourceUserId(history.getSourceUser() != null
+                                                ? history.getSourceUser().getUserId()
+                                                : null)
+                                .sourceUsername(history.getSourceUser() != null
+                                                ? history.getSourceUser().getUsername()
+                                                : null)
 
-    private ReputationHistoryResponse convertToResponse(ReputationHistory history) {
-        return ReputationHistoryResponse.builder()
-                .reputationId(history.getReputationId())
+                                .questionId(history.getQuestion() != null
+                                                ? history.getQuestion().getQuestionId()
+                                                : null)
+                                .answerId(history.getAnswer() != null
+                                                ? history.getAnswer().getAnswerId()
+                                                : null)
 
-                .userId(history.getUser().getUserId())
-                .username(history.getUser().getUsername())
-
-                .sourceUserId(history.getSourceUser() != null
-                        ? history.getSourceUser().getUserId()
-                        : null)
-                .sourceUsername(history.getSourceUser() != null
-                        ? history.getSourceUser().getUsername()
-                        : null)
-
-                .questionId(history.getQuestion() != null
-                        ? history.getQuestion().getQuestionId()
-                        : null)
-                .answerId(history.getAnswer() != null
-                        ? history.getAnswer().getAnswerId()
-                        : null)
-
-                .reputationChange(history.getReputationChange())
-                .reason(history.getReason())
-                .createdAt(history.getCreatedAt())
-                .build();
-    }
+                                .reputationChange(history.getReputationChange())
+                                .reason(history.getReason())
+                                .createdAt(history.getCreatedAt())
+                                .build();
+        }
 }

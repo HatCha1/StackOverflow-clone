@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users/{userId}/reputation-history")
+@RequestMapping("/api/users/reputation-history")
 public class ReputationHistoryController {
     @Autowired
     private ReputationHistoryService reputationHistoryService;
