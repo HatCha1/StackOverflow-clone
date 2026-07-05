@@ -1,5 +1,6 @@
 package com.singha.stackoverflow.springwebapp.service;
 
+import com.singha.stackoverflow.springwebapp.dto.QuestionResponseDTO;
 import com.singha.stackoverflow.springwebapp.entity.Question;
 import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
@@ -8,6 +9,7 @@ import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +25,8 @@ public class QuestionService {
     @Autowired
     private BadgeService badgeService;
 
-    public Question createQuestion(String title, String body, String username) {
+    @Transactional
+    public QuestionResponseDTO createQuestion(String title, String body, String username) {
         // Resolve the authenticated user from their username (extracted from JWT by the controller)
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
@@ -38,23 +41,29 @@ public class QuestionService {
 
         badgeService.checkBadges();
 
-        return savedQuestion;
+        return toDTO(savedQuestion);
     }
 
     // READ ALL
-    public List<Question> getAllQuestions() {
-        return questionRepository.findAll();
+    @Transactional(readOnly = true)
+    public List<QuestionResponseDTO> getAllQuestions() {
+        return questionRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     // READ ONE
-    public Question getQuestionById(Long questionId) {
-        return questionRepository.findById(questionId).orElseThrow(
-                () -> new ResourceNotFoundException("Question not found")
-        );
+    @Transactional(readOnly = true)
+    public QuestionResponseDTO getQuestionById(Long questionId) {
+        return questionRepository.findById(questionId)
+                .map(this::toDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
     }
 
     // UPDATE
-    public Question updateQuestion(Long questionId, String username, String newTitle, String newBody) {
+    @Transactional
+    public QuestionResponseDTO updateQuestion(Long questionId, String username, String newTitle, String newBody) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
@@ -65,11 +74,13 @@ public class QuestionService {
 
         question.setTitle(newTitle);
         question.setBody(newBody);
+        question.setUpdatedAt(LocalDateTime.now());
 
-        return questionRepository.save(question);
+        return toDTO(questionRepository.save(question));
     }
 
     // DELETE
+    @Transactional
     public void deleteQuestion(Long questionId, String username) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
@@ -80,5 +91,18 @@ public class QuestionService {
         }
 
         questionRepository.delete(question);
+    }
+
+    // Private mapping helper — single source of truth for Question → DTO conversion
+    private QuestionResponseDTO toDTO(Question question) {
+        QuestionResponseDTO dto = new QuestionResponseDTO();
+        dto.setQuestionId(question.getQuestionId());
+        dto.setTitle(question.getTitle());
+        dto.setBody(question.getBody());
+        dto.setViewCount(question.getViewCount());
+        dto.setIsClosed(question.getIsClosed());
+        dto.setCreatedAt(question.getCreatedAt());
+        dto.setAuthorName(question.getUser().getUsername());
+        return dto;
     }
 }
