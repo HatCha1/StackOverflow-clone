@@ -50,7 +50,7 @@ function SuccessIcon() {
   );
 }
 
-export default function LoginPage() {
+export default function LoginPage({ onLoginSuccess }) {
   const [activeTab, setActiveTab] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -126,8 +126,8 @@ export default function LoginPage() {
 
     setMessage({ type: 'success', text: `Welcome back, ${data.username}!` });
 
-    // TODO: Redirect to home page after successful login
-    // e.g., navigate('/') or window.location.href = '/'
+    // Navigate to home page
+    setTimeout(() => onLoginSuccess(), 800);
   }
 
   async function handleRegister() {
