@@ -24,4 +24,6 @@ public class AnswerResponse {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private Integer voteCount;
 }

@@ -12,4 +12,5 @@ public class QuestionResponseDTO {
     private Boolean isClosed;
     private LocalDateTime createdAt;
     private String authorName; // Flattened field to send back the user's name cleanly
+    private Integer voteCount;
 }
