@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import './QuestionDetail.css';
 
 const API_BASE = 'http://localhost:8080/api';
@@ -305,7 +306,9 @@ function DetailSkeleton() {
 
 // ─── Main Page ───
 
-export default function QuestionDetail({ questionId, onBack }) {
+export default function QuestionDetail() {
+  const { id: questionId } = useParams();
+  const navigate = useNavigate();
   const [question, setQuestion] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [comments, setComments] = useState([]);
@@ -400,7 +403,7 @@ export default function QuestionDetail({ questionId, onBack }) {
     return (
       <div className="detail-page">
         <div className="detail-container">
-          <button className="btn-back" onClick={onBack}><BackIcon /> All Questions</button>
+          <button className="btn-back" onClick={() => navigate(-1)}><BackIcon /> All Questions</button>
           <DetailSkeleton />
         </div>
       </div>
@@ -411,7 +414,7 @@ export default function QuestionDetail({ questionId, onBack }) {
     return (
       <div className="detail-page">
         <div className="detail-container">
-          <button className="btn-back" onClick={onBack}><BackIcon /> All Questions</button>
+          <button className="btn-back" onClick={() => navigate(-1)}><BackIcon /> All Questions</button>
           <div className="error-state" role="alert">
             <p className="error-title">Could not load question</p>
             <p className="error-detail">{error}</p>
@@ -426,8 +429,8 @@ export default function QuestionDetail({ questionId, onBack }) {
       <div className="detail-container">
 
         {/* Back nav */}
-        <button className="btn-back" onClick={onBack}>
-          <BackIcon /> All Questions
+        <button className="btn-back" onClick={() => navigate(-1)}>
+          <BackIcon /> Back
         </button>
 
         {/* ─── Question Section ─── */}

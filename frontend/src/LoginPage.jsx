@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
 const API_BASE = 'http://localhost:8080/api/users';
@@ -50,12 +51,13 @@ function SuccessIcon() {
   );
 }
 
-export default function LoginPage({ onLoginSuccess }) {
+export default function LoginPage() {
   const [activeTab, setActiveTab] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState(null); // { type: 'error' | 'success', text: '' }
   const [shakeError, setShakeError] = useState(false);
+  const navigate = useNavigate();
 
   // Form state
   const [username, setUsername] = useState('');
@@ -126,8 +128,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
     setMessage({ type: 'success', text: `Welcome back, ${data.username}!` });
 
-    // Navigate to home page
-    setTimeout(() => onLoginSuccess(), 800);
+    navigate('/')
   }
 
   async function handleRegister() {

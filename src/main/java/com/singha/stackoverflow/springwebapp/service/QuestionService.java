@@ -2,23 +2,20 @@ package com.singha.stackoverflow.springwebapp.service;
 
 import com.singha.stackoverflow.springwebapp.dto.QuestionResponseDTO;
 import com.singha.stackoverflow.springwebapp.entity.Question;
-import com.singha.stackoverflow.springwebapp.entity.Tag;
 import com.singha.stackoverflow.springwebapp.entity.User;
 import com.singha.stackoverflow.springwebapp.enums.VoteType;
 import com.singha.stackoverflow.springwebapp.exception.ResourceNotFoundException;
 import com.singha.stackoverflow.springwebapp.exception.UnauthorizedException;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
-import com.singha.stackoverflow.springwebapp.repository.TagRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import com.singha.stackoverflow.springwebapp.repository.VoteRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -35,32 +32,18 @@ public class QuestionService {
     @Autowired
     private VoteRepository voteRepository;
 
-    @Autowired
-    private TagRepository tagRepository;
-
     @Transactional
-    public QuestionResponseDTO createQuestion(String title, String body, String username, List<String> tags) {
-        // Resolve the authenticated user from their username (extracted from JWT by the controller)
+    public QuestionResponseDTO createQuestion(String title, String body, String username) {
+        // Resolve the authenticated user from their username (extracted from JWT by the
+        // controller)
         User author = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
-
-        Set<Tag> questionTags = tags.stream()
-                .map(String::trim)
-                .filter(tagName -> !tagName.isBlank())
-                .map(tagName -> tagRepository.findByTagNameIgnoreCase(tagName)
-                        .orElseGet(() -> {
-                            Tag tag = new Tag();
-                            tag.setTagName(tagName.toLowerCase());
-                            return tagRepository.save(tag);
-                        }))
-                .collect(Collectors.toSet());
 
         Question question = new Question();
         question.setTitle(title);
         question.setBody(body);
         question.setUser(author);
         question.setCreatedAt(LocalDateTime.now());
-        question.setTags(questionTags);
 
         Question savedQuestion = questionRepository.save(question);
 
@@ -75,6 +58,15 @@ public class QuestionService {
         return questionRepository.findAll()
                 .stream()
                 .map(this::toDTO)
+                .sorted((q1, q2) -> {
+                    LocalDateTime t1 = q1.getCreatedAt();
+                    LocalDateTime t2 = q2.getCreatedAt();
+                    int timeCompare = t2.compareTo(t1);
+                    if (timeCompare != 0) {
+                        return timeCompare;
+                    }
+                    return Long.compare(q2.getVoteCount(), q1.getVoteCount());
+                })
                 .toList();
     }
 
@@ -84,10 +76,14 @@ public class QuestionService {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
-        User author = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
-
-        if(!Objects.equals(question.getUser().getUserId(), author.getUserId())) {
+        if (username != null) {
+            User author = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+            if (!Objects.equals(question.getUser().getUserId(), author.getUserId())) {
+                question.setViewCount(question.getViewCount() + 1);
+            }
+        } else {
+            // Guest viewer
             question.setViewCount(question.getViewCount() + 1);
         }
 
@@ -128,9 +124,9 @@ public class QuestionService {
 
     // Private mapping helper — single source of truth for Question → DTO conversion
     private QuestionResponseDTO toDTO(Question question) {
-        long upvotes   = voteRepository.countByQuestion_QuestionIdAndVoteType(question.getQuestionId(), VoteType.UPVOTE);
-        long downvotes = voteRepository.countByQuestion_QuestionIdAndVoteType(question.getQuestionId(), VoteType.DOWNVOTE);
-
+        long upvotes = voteRepository.countByQuestion_QuestionIdAndVoteType(question.getQuestionId(), VoteType.UPVOTE);
+        long downvotes = voteRepository.countByQuestion_QuestionIdAndVoteType(question.getQuestionId(),
+                VoteType.DOWNVOTE);
         QuestionResponseDTO dto = new QuestionResponseDTO();
         dto.setQuestionId(question.getQuestionId());
         dto.setTitle(question.getTitle());
@@ -139,13 +135,7 @@ public class QuestionService {
         dto.setIsClosed(question.getIsClosed());
         dto.setCreatedAt(question.getCreatedAt());
         dto.setAuthorName(question.getUser().getUsername());
-        dto.setVoteCount((int)(upvotes - downvotes));
-        dto.setTags(
-                question.getTags()
-                        .stream()
-                        .map(Tag::getTagName)
-                        .toList()
-        );
+        dto.setVoteCount((int) (upvotes - downvotes));
         return dto;
     }
 }

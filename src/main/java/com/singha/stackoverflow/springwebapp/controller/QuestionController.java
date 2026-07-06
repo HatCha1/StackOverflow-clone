@@ -42,7 +42,7 @@ public class QuestionController {
     @GetMapping("/{id}")
     public ResponseEntity<QuestionResponseDTO> getQuestionById(@PathVariable Long id,
                                                                Authentication authentication) {
-        String username = authentication.getName();
+        String username = authentication != null ? authentication.getName() : null;
         return ResponseEntity.ok(questionService.getQuestionById(id, username));
     }
 
