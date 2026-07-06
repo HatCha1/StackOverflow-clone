@@ -1,6 +1,5 @@
 package com.singha.stackoverflow.springwebapp.controller;
 
-import com.singha.stackoverflow.springwebapp.dto.BookmarkRequestDTO;
 import com.singha.stackoverflow.springwebapp.dto.BookmarkResponseDTO;
 import com.singha.stackoverflow.springwebapp.service.BookmarkService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,21 +17,19 @@ public class BookmarkController {
 
     @PostMapping("/questions/{questionId}/bookmark")
     public ResponseEntity<BookmarkResponseDTO> addBookmark(
-            @PathVariable Long questionId,
-            @RequestBody BookmarkRequestDTO request) {
-        return ResponseEntity.ok(bookmarkService.addBookmark(questionId, request));
+            @PathVariable Long questionId) {
+        return ResponseEntity.ok(bookmarkService.addBookmark(questionId));
     }
 
-    @GetMapping("/users/{userId}/bookmarks")
-    public ResponseEntity<List<BookmarkResponseDTO>> getBookmarksByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(bookmarkService.getBookmarksByUserId(userId));
+    @GetMapping("/users/bookmarks")
+    public ResponseEntity<List<BookmarkResponseDTO>> getBookmarksByUserId() {
+        return ResponseEntity.ok(bookmarkService.getBookmarksByUserId());
     }
 
     @DeleteMapping("/questions/{questionId}/bookmark")
     public ResponseEntity<String> removeBookmark(
-            @PathVariable Long questionId,
-            @RequestParam Long userId) {
-        bookmarkService.removeBookmark(questionId, userId);
+            @PathVariable Long questionId) {
+        bookmarkService.removeBookmark(questionId);
         return ResponseEntity.ok("Bookmark removed successfully");
     }
 }

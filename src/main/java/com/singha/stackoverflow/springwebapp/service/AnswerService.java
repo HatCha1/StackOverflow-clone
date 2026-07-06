@@ -41,7 +41,7 @@ public class AnswerService {
 
                 String username = Objects.requireNonNull(SecurityContextHolder.getContext()
                                 .getAuthentication())
-                                .getName();
+                        .getName();
 
                 User currentUser = userRepository.findByUsername(username)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

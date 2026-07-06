@@ -1,6 +1,5 @@
 package com.singha.stackoverflow.springwebapp.service;
 
-import com.singha.stackoverflow.springwebapp.dto.BookmarkRequestDTO;
 import com.singha.stackoverflow.springwebapp.dto.BookmarkResponseDTO;
 import com.singha.stackoverflow.springwebapp.entity.Bookmark;
 import com.singha.stackoverflow.springwebapp.entity.BookmarkId;
@@ -12,9 +11,11 @@ import com.singha.stackoverflow.springwebapp.repository.BookmarkRepository;
 import com.singha.stackoverflow.springwebapp.repository.QuestionRepository;
 import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BookmarkService {
@@ -28,43 +29,58 @@ public class BookmarkService {
     @Autowired
     private QuestionRepository questionRepository;
 
-    public BookmarkResponseDTO addBookmark(Long questionId, BookmarkRequestDTO request) {
-        Long userId = request.getUserId();
+    public BookmarkResponseDTO addBookmark(Long questionId) {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getName();
 
-        User user = userRepository.findById(userId)
+        User currentUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
 
-        if (bookmarkRepository.existsById_UserIdAndId_QuestionId(userId, questionId)) {
+        if (bookmarkRepository.existsById_UserIdAndId_QuestionId(currentUser.getUserId(), questionId)) {
             throw new DuplicateResourceException("Question is already bookmarked");
         }
 
         BookmarkId id = BookmarkId.builder()
-                .userId(userId)
+                .userId(currentUser.getUserId())
                 .questionId(questionId)
                 .build();
 
         Bookmark bookmark = Bookmark.builder()
                 .id(id)
-                .user(user)
+                .user(currentUser)
                 .question(question)
                 .build();
 
         return convertToResponse(bookmarkRepository.save(bookmark));
     }
 
-    public List<BookmarkResponseDTO> getBookmarksByUserId(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("User not found");
-        }
-        return bookmarkRepository.findByUser_UserIdOrderByCreatedAtDesc(userId).stream()
+    public List<BookmarkResponseDTO> getBookmarksByUserId() {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                        .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return bookmarkRepository.findByUser_UserIdOrderByCreatedAtDesc(currentUser.getUserId()).stream()
                 .map(this::convertToResponse)
                 .toList();
     }
 
-    public void removeBookmark(Long questionId, Long userId) {
-        BookmarkId id = new BookmarkId(userId, questionId);
+    public void removeBookmark(Long questionId) {
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
+                .getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        BookmarkId id = new BookmarkId(currentUser.getUserId(), questionId);
+
         Bookmark bookmark = bookmarkRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Bookmark not found"));
         bookmarkRepository.delete(bookmark);
