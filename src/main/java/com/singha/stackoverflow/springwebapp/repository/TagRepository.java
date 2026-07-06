@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
-    Optional<Tag> findByTagName(String tagName);
+    Optional<Tag> findByTagNameIgnoreCase(String name);
 
     boolean existsByTagName(String tagName);
 

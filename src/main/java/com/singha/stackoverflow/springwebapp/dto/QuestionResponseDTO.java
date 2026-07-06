@@ -2,6 +2,7 @@ package com.singha.stackoverflow.springwebapp.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class QuestionResponseDTO {
@@ -13,4 +14,5 @@ public class QuestionResponseDTO {
     private LocalDateTime createdAt;
     private String authorName; // Flattened field to send back the user's name cleanly
     private Integer voteCount;
+    private List<String> tags;
 }

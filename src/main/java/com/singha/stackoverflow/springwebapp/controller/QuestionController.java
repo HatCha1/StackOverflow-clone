@@ -28,7 +28,8 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.createQuestion(
                 createDTO.getTitle(),
                 createDTO.getBody(),
-                username));
+                username,
+                createDTO.getTags()));
     }
 
     // 1. READ ALL
