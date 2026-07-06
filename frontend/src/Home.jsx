@@ -89,13 +89,13 @@ function QuestionSkeleton() {
 
 // ─── Question Card ───
 
-function QuestionCard({ question, onSelect }) {
+function QuestionCard({ question, onClick }) {
   const isClosed = question.isClosed;
 
   return (
     <article
       className={`question-card ${isClosed ? 'question-card--closed' : ''}`}
-      onClick={() => onSelect(question.questionId)}
+      onClick={onClick}
       style={{ cursor: 'pointer' }}
     >
       {/* Stats column */}
@@ -146,9 +146,10 @@ function QuestionCard({ question, onSelect }) {
   );
 }
 
-// ─── Home Page ───
+import { useNavigate } from 'react-router-dom';
 
-export default function Home({ onSelectQuestion }) {
+export default function Home() {
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -227,9 +228,13 @@ export default function Home({ onSelectQuestion }) {
 
           {/* Questions list */}
           {!isLoading && !error && questions.length > 0 && (
-            <div className="questions-list">
+            <div className="question-list">
               {questions.map((q) => (
-                <QuestionCard key={q.questionId} question={q} onSelect={onSelectQuestion} />
+                <QuestionCard
+                  key={q.questionId}
+                  question={q}
+                  onClick={() => navigate(`/questions/${q.questionId}`)}
+                />
               ))}
             </div>
           )}
