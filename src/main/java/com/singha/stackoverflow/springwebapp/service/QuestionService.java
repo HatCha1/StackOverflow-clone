@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class QuestionService {
@@ -59,11 +60,19 @@ public class QuestionService {
     }
 
     // READ ONE
-    @Transactional(readOnly = true)
-    public QuestionResponseDTO getQuestionById(Long questionId) {
-        return questionRepository.findById(questionId)
-                .map(this::toDTO)
+    @Transactional
+    public QuestionResponseDTO getQuestionById(Long questionId, String username) {
+        Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
+
+        User author = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
+
+        if(!Objects.equals(question.getUser().getUserId(), author.getUserId())) {
+            question.setViewCount(question.getViewCount() + 1);
+        }
+
+        return toDTO(question);
     }
 
     // UPDATE

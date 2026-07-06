@@ -39,8 +39,10 @@ public class QuestionController {
 
     // 2. READ ONE
     @GetMapping("/{id}")
-    public ResponseEntity<QuestionResponseDTO> getQuestionById(@PathVariable Long id) {
-        return ResponseEntity.ok(questionService.getQuestionById(id));
+    public ResponseEntity<QuestionResponseDTO> getQuestionById(@PathVariable Long id,
+                                                               Authentication authentication) {
+        String username = authentication.getName();
+        return ResponseEntity.ok(questionService.getQuestionById(id, username));
     }
 
     // 3. UPDATE
