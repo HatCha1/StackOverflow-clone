@@ -67,6 +67,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Make Maven wrapper executable
+        working-directory: ./backend
+        run: chmod +x mvnw
+
+      - name: Resolve backend dependencies
+        working-directory: ./backend
+        run: ./mvnw dependency:resolve
+
       - name: Run Trivy filesystem scan
         uses: aquasecurity/trivy-action@master
         with:
