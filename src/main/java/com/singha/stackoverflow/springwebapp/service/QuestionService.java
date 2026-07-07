@@ -155,6 +155,12 @@ public class QuestionService {
         dto.setCreatedAt(question.getCreatedAt());
         dto.setAuthorName(question.getUser().getUsername());
         dto.setVoteCount((int) (upvotes - downvotes));
+
+        // Mapping tags to DTO
+        if (question.getTags() != null) {
+            dto.setTags(question.getTags().stream().map(Tag::getTagName).toList());
+        }
+
         return dto;
     }
 }
