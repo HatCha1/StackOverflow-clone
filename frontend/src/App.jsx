@@ -4,6 +4,7 @@ import LoginPage from './LoginPage';
 import Home from './Home';
 import QuestionDetail from './QuestionDetail';
 import AppNavbar from './Navbar';
+import AskQuestion from './AskQuestion';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'));
@@ -23,8 +24,9 @@ function App() {
       
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginPage onLoginSuccess={() => setIsLoggedIn(true)} />} />
+        <Route path="/login" element={ <LoginPage onLoginSuccess={() => { setIsLoggedIn(true); navigate('/'); }} />} />
         <Route path="/questions/:id" element={<QuestionDetail />} />
+        <Route path="/questions/ask" element={<AskQuestion />} />
       </Routes>
     </>
   );

@@ -192,10 +192,8 @@ export default function Home() {
             </div>
             {/* Ask Question button — visible but disabled until the form is built */}
             <button
-              id="btn-ask-question"
               className="btn-ask"
-              disabled
-              title="Coming soon"
+              onClick={() => navigate('/questions/ask')}
             >
               Ask Question
             </button>
