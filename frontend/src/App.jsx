@@ -5,6 +5,7 @@ import Home from './Home';
 import QuestionDetail from './QuestionDetail';
 import AppNavbar from './Navbar';
 import AskQuestion from './AskQuestion';
+import ProfileDashboard from './ProfileDashboard';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'));
@@ -27,6 +28,7 @@ function App() {
         <Route path="/login" element={ <LoginPage onLoginSuccess={() => { setIsLoggedIn(true); navigate('/'); }} />} />
         <Route path="/questions/:id" element={<QuestionDetail />} />
         <Route path="/questions/ask" element={<AskQuestion />} />
+        <Route path="/profile" element={<ProfileDashboard />} />
       </Routes>
     </>
   );

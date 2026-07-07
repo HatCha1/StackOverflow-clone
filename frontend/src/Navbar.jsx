@@ -12,7 +12,7 @@ function AppNavbar({ isLoggedIn, onLogoutClick }) {
                     <Nav.Link as={Link} to="/">Home</Nav.Link>
                     {isLoggedIn ? (
                         <>
-                            <Nav.Link href="#edit-profile">Edit Profile</Nav.Link>
+                            <Nav.Link as={Link} to="/profile">My Profile & Badges</Nav.Link>
                             <Nav.Link href="#logout" onClick={(e) => { e.preventDefault(); onLogoutClick(); }}>Logout</Nav.Link>
                         </>
                     ) : (
