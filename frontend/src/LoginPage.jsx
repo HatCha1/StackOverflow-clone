@@ -51,7 +51,7 @@ function SuccessIcon() {
   );
 }
 
-export default function LoginPage() {
+export default function LoginPage({ onLoginSuccess }) {
   const [activeTab, setActiveTab] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -125,6 +125,10 @@ export default function LoginPage() {
     // Store JWT token
     localStorage.setItem('token', data.token);
     localStorage.setItem('username', data.username);
+
+    if (onLoginSuccess) {
+      onLoginSuccess();
+    }
 
     setMessage({ type: 'success', text: `Welcome back, ${data.username}!` });
 
