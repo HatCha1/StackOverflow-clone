@@ -124,6 +124,16 @@ function QuestionCard({ question, onClick }) {
             : question.body}
         </p>
 
+        {question.tags && question.tags.length > 0 && (
+            <div style={{ display: 'flex', gap: '6px', margin: '8px 0' }}>
+              {question.tags.map((tag, idx) => (
+                  <span key={idx} style={{ background: '#222430', color: '#0a95ff', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '500' }}>
+                    {tag}
+                  </span>
+              ))}
+            </div>
+        )}
+
         {/* Footer row */}
         <div className="question-footer">
           <div className="question-meta">
