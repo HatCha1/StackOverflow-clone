@@ -29,6 +29,22 @@ function ArrowDownIcon() {
   );
 }
 
+function BookmarkIcon({ filled }) {
+  return (
+      <svg
+          viewBox="0 0 24 24"
+          fill={filled ? "var(--color-primary)" : "none"}
+          stroke={filled ? "var(--color-primary)" : "currentColor"}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ width: '20px', height: '20px' }}
+      >
+        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+      </svg>
+  );
+}
+
 function CheckIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -315,6 +331,8 @@ export default function QuestionDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
   // Answer form
   const [answerBody, setAnswerBody] = useState('');
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
@@ -323,6 +341,10 @@ export default function QuestionDetail() {
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
+
+    const token = getToken();
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    
     try {
       const [qRes, aRes, cRes] = await Promise.all([
         fetch(`${API_BASE}/questions/${questionId}`),
@@ -340,6 +362,15 @@ export default function QuestionDetail() {
         return new Date(x.createdAt) - new Date(y.createdAt);
       }));
       setComments(Array.isArray(c) ? c : []);
+
+      if (token) {
+        const bRes = await fetch(`${API_BASE}/users/bookmarks`, { headers });
+        if (bRes.ok) {
+          const bData = await bRes.json();
+          const found = bData.some(b => String(b.questionId) === String(questionId));
+          setIsBookmarked(found);
+        }
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -348,6 +379,29 @@ export default function QuestionDetail() {
   }, [questionId]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  async function handleToggleBookmark() {
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    const method = isBookmarked ? 'DELETE' : 'POST';
+    try {
+      const res = await fetch(`${API_BASE}/questions/${questionId}/bookmark`, {
+        method: method,
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        setIsBookmarked(!isBookmarked);
+      } else {
+        alert("Failed to update bookmark status");
+      }
+    } catch (_) {
+      alert("Network communication error updating bookmark status");
+    }
+  }
 
   async function handleVoteQuestion(voteType) {
     try {
