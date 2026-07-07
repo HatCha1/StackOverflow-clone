@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api') + '/users';
+
 export default function ProfileDashboard() {
     const [bookmarks, setBookmarks] = useState([]);
     const [badges, setBadges] = useState([]);
@@ -8,10 +10,10 @@ export default function ProfileDashboard() {
     useEffect(() => {
         const headers = { 'Authorization': `Bearer ${localStorage.getItem('token')}` };
 
-        fetch('http://localhost:8080/api/users/bookmarks', { headers })
+        fetch(`${API_BASE}/bookmarks`, { headers })
             .then(res => res.json()).then(data => setBookmarks(data)).catch(() => {});
 
-        fetch('http://localhost:8080/api/users/badges', { headers })
+        fetch(`${API_BASE}/badges`, { headers })
             .then(res => res.json()).then(data => setBadges(data)).catch(() => {});
     }, []);
 

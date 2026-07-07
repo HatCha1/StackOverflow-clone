@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 
-const API_BASE = 'http://localhost:8080/api/users';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api') + '/users';
 
 // ─── Icon Components ───
 function StackOverflowIcon() {

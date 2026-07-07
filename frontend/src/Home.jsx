@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
 // ─── Icons ───
 
@@ -126,13 +126,13 @@ function QuestionCard({ question, onClick }) {
         </p>
 
         {question.tags && question.tags.length > 0 && (
-            <div style={{ display: 'flex', gap: '6px', margin: '8px 0' }}>
-              {question.tags.map((tag, idx) => (
-                  <span key={idx} style={{ background: '#222430', color: '#0a95ff', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '500' }}>
-                    {tag}
-                  </span>
-              ))}
-            </div>
+          <div style={{ display: 'flex', gap: '6px', margin: '8px 0' }}>
+            {question.tags.map((tag, idx) => (
+              <span key={idx} style={{ background: '#222430', color: '#0a95ff', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: '500' }}>
+                {tag}
+              </span>
+            ))}
+          </div>
         )}
 
         {/* Footer row */}
