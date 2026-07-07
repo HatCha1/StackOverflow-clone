@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 const API_BASE = 'http://localhost:8080/api';
@@ -155,8 +156,6 @@ function QuestionCard({ question, onClick }) {
     </article>
   );
 }
-
-import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
   const navigate = useNavigate();
