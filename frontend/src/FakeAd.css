@@ -120,12 +120,10 @@
 /* Right sidebar ad */
 
 .fake-ad--sidebar {
-  width: 260px;
+  width: 100%;
   min-height: 360px;
   border-radius: var(--radius-lg);
   padding: var(--space-4);
-  position: sticky;
-  top: 76px;
 }
 
 .fake-ad-vertical {

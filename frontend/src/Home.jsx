@@ -428,28 +428,38 @@ export default function Home() {
                 <div className="sidebar-avatar">
                   {(user?.displayName || username).slice(0, 2).toUpperCase()}
                 </div>
+
                 <div className="sidebar-user-info">
                   <div className="sidebar-display-name">{user?.displayName || username}</div>
                   <div className="sidebar-username">@{username}</div>
                 </div>
+
                 <div className="sidebar-reputation">
                   <span className="sidebar-rep-number">{user?.reputation ?? 0}</span>
                   <span className="sidebar-rep-label">reputation</span>
                 </div>
-                <Link to="/profile" className="sidebar-profile-link">View Profile →</Link>
+
+                <Link to="/profile" className="sidebar-profile-link">
+                  View Profile →
+                </Link>
               </div>
 
               {/* Badges */}
               <div className="sidebar-card">
                 <h4 className="sidebar-card-title">Your Badges</h4>
+
                 {badges.length === 0 ? (
                   <p className="sidebar-empty">No badges yet. Keep contributing!</p>
                 ) : (
                   <div className="sidebar-badge-list">
                     {badges.map((b, i) => {
-                      const dotColor = b.badgeType === 'GOLD' ? '#ffd700'
-                        : b.badgeType === 'SILVER' ? '#c0c0c0'
-                        : '#cd7f32';
+                      const dotColor =
+                        b.badgeType === 'GOLD'
+                          ? '#ffd700'
+                          : b.badgeType === 'SILVER'
+                            ? '#c0c0c0'
+                            : '#cd7f32';
+
                       return (
                         <div key={i} className="sidebar-badge">
                           <span style={{ color: dotColor, fontSize: '10px' }}>●</span>
@@ -460,10 +470,12 @@ export default function Home() {
                   </div>
                 )}
               </div>
+
+              {/* Fake ad below badges */}
+              <SidebarFakeAd />
             </aside>
           )}
 
-        <SidebarFakeAd />
         <BottomFakeAd />
     </div>
   );
