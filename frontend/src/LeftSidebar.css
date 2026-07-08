@@ -1,0 +1,103 @@
+/* ─── Left Sidebar ─── */
+
+.left-sidebar {
+  width: 164px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 52px;             /* height of the navbar */
+  height: calc(100dvh - 52px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px 0 24px;
+  border-right: 1px solid #2d303e;
+}
+
+/* ─── Nav list ─── */
+
+.left-sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.left-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── Links ─── */
+
+.left-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  color: #8b8fa7;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  border-right: 3px solid transparent;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.left-sidebar-link svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.left-sidebar-link:hover {
+  color: #edeef0;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.left-sidebar-link--active {
+  color: #edeef0;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  border-right-color: #f48225;
+}
+
+/* ─── Section label ─── */
+
+.left-sidebar-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #8b8fa7;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  padding: 16px 16px 6px;
+}
+
+/* ─── Ask button ─── */
+
+.left-sidebar-ask-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 12px;
+  padding: 8px 14px;
+  background: #0a95ff;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.left-sidebar-ask-btn:hover {
+  background: #0080dd;
+  color: #fff;
+}
+
+/* ─── Responsive: hide on small screens ─── */
+
+@media (max-width: 768px) {
+  .left-sidebar {
+    display: none;
+  }
+}

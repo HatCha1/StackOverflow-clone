@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Home.css';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
@@ -163,7 +163,12 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const username = localStorage.getItem('username') ?? 'User';
+  const token = localStorage.getItem('token');
+  const username = localStorage.getItem('username') ?? '';
+  const isLoggedIn = !!token;
+
+  const [user, setUser] = useState(null);
+  const [badges, setBadges] = useState([]);
 
   useEffect(() => {
     async function fetchQuestions() {
@@ -181,73 +186,117 @@ export default function Home() {
       }
     }
 
+    async function fetchUserData() {
+      if (!token) return;
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+      try {
+        const [userRes, badgeRes] = await Promise.allSettled([
+          fetch(`${API_BASE}/users/me`, { headers }),
+          fetch(`${API_BASE}/users/badges`, { headers }),
+        ]);
+        if (userRes.status === 'fulfilled' && userRes.value.ok) setUser(await userRes.value.json());
+        if (badgeRes.status === 'fulfilled' && badgeRes.value.ok) setBadges(await badgeRes.value.json());
+      } catch (_) {}
+    }
+
     fetchQuestions();
+    fetchUserData();
   }, []);
 
 
   return (
-    <div className="home-page">
-      {/* ─── Main Content ─── */}
-      <main className="home-main">
-        <div className="home-container">
+    <div className="home-layout">
 
-          {/* Page header */}
-          <div className="page-header">
-            <div>
-              <h1 className="page-title">All Questions</h1>
-              <p className="page-subtitle">
-                {isLoading ? 'Loading…' : error ? '' : `${questions.length} question${questions.length !== 1 ? 's' : ''}`}
-              </p>
+          {/* ─── Questions Feed ─── */}
+          <div className="home-container">
+
+            {/* Page header */}
+            <div className="page-header">
+              <div>
+                <h1 className="page-title">All Questions</h1>
+                <p className="page-subtitle">
+                  {isLoading ? 'Loading…' : error ? '' : `${questions.length} question${questions.length !== 1 ? 's' : ''}`}
+                </p>
+              </div>
+              <button className="btn-ask" onClick={() => navigate('/questions/ask')}>
+                Ask Question
+              </button>
             </div>
-            {/* Ask Question button — visible but disabled until the form is built */}
-            <button
-              className="btn-ask"
-              onClick={() => navigate('/questions/ask')}
-            >
-              Ask Question
-            </button>
+
+            {isLoading && (
+              <div className="questions-list" aria-busy="true">
+                {Array.from({ length: 5 }).map((_, i) => <QuestionSkeleton key={i} />)}
+              </div>
+            )}
+            {!isLoading && error && (
+              <div className="error-state" role="alert">
+                <p className="error-title">Could not load questions</p>
+                <p className="error-detail">{error}</p>
+              </div>
+            )}
+            {!isLoading && !error && questions.length === 0 && (
+              <div className="empty-state">
+                <p className="empty-title">No questions yet</p>
+                <p className="empty-detail">Be the first to ask a question!</p>
+              </div>
+            )}
+            {!isLoading && !error && questions.length > 0 && (
+              <div className="question-list">
+                {questions.map((q) => (
+                  <QuestionCard
+                    key={q.questionId}
+                    question={q}
+                    onClick={() => navigate(`/questions/${q.questionId}`)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Loading state */}
-          {isLoading && (
-            <div className="questions-list" aria-busy="true" aria-label="Loading questions">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <QuestionSkeleton key={i} />
-              ))}
-            </div>
+          {/* ─── Sidebar (logged-in users only) ─── */}
+          {isLoggedIn && (
+            <aside className="home-sidebar">
+              {/* User card */}
+              <div className="sidebar-card">
+                <div className="sidebar-avatar">
+                  {(user?.displayName || username).slice(0, 2).toUpperCase()}
+                </div>
+                <div className="sidebar-user-info">
+                  <div className="sidebar-display-name">{user?.displayName || username}</div>
+                  <div className="sidebar-username">@{username}</div>
+                </div>
+                <div className="sidebar-reputation">
+                  <span className="sidebar-rep-number">{user?.reputation ?? 0}</span>
+                  <span className="sidebar-rep-label">reputation</span>
+                </div>
+                <Link to="/profile" className="sidebar-profile-link">View Profile →</Link>
+              </div>
+
+              {/* Badges */}
+              <div className="sidebar-card">
+                <h4 className="sidebar-card-title">Your Badges</h4>
+                {badges.length === 0 ? (
+                  <p className="sidebar-empty">No badges yet. Keep contributing!</p>
+                ) : (
+                  <div className="sidebar-badge-list">
+                    {badges.map((b, i) => {
+                      const dotColor = b.badgeType === 'GOLD' ? '#ffd700'
+                        : b.badgeType === 'SILVER' ? '#c0c0c0'
+                        : '#cd7f32';
+                      return (
+                        <div key={i} className="sidebar-badge">
+                          <span style={{ color: dotColor, fontSize: '10px' }}>●</span>
+                          <span>{b.badgeName}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </aside>
           )}
 
-          {/* Error state */}
-          {!isLoading && error && (
-            <div className="error-state" role="alert">
-              <p className="error-title">Could not load questions</p>
-              <p className="error-detail">{error}</p>
-            </div>
-          )}
-
-          {/* Empty state */}
-          {!isLoading && !error && questions.length === 0 && (
-            <div className="empty-state">
-              <p className="empty-title">No questions yet</p>
-              <p className="empty-detail">Be the first to ask a question!</p>
-            </div>
-          )}
-
-          {/* Questions list */}
-          {!isLoading && !error && questions.length > 0 && (
-            <div className="question-list">
-              {questions.map((q) => (
-                <QuestionCard
-                  key={q.questionId}
-                  question={q}
-                  onClick={() => navigate(`/questions/${q.questionId}`)}
-                />
-              ))}
-            </div>
-          )}
-
-        </div>
-      </main>
     </div>
   );
 }
+
