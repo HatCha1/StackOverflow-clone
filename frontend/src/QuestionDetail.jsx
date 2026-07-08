@@ -309,7 +309,7 @@ function CommentList({ comments: initialComments, onAddComment, targetId, type }
 
 // ─── Answer Card ───
 
-function AnswerCard({ answer, questionAuthorName, onVote, onAccept, onDelete }) {
+function AnswerCard({ answer, questionAuthorId, onVote, onAccept, onDelete }) {
   const [comments, setComments] = useState([]);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -365,6 +365,7 @@ function AnswerCard({ answer, questionAuthorName, onVote, onAccept, onDelete }) 
   }
 
   const currentUsername = getUsername();
+  const currentUserId = localStorage.getItem('userId');
   const isAccepted = answer.isAccepted || answer.accepted;
   const canAccept = questionAuthorName === currentUsername;
   const isAuthor = currentUsername === (answer.username ?? answer.displayName);
@@ -829,7 +830,7 @@ export default function QuestionDetail() {
                 <AnswerCard
                   key={a.answerId}
                   answer={a}
-                  questionAuthorName={question.authorName}
+                  questionAuthorId={question.userId}
                   onVote={handleVoteAnswer}
                   onAccept={handleAcceptAnswer}
                   onDelete={(deletedId) => setAnswers((prev) => prev.filter((a) => a.answerId !== deletedId))}

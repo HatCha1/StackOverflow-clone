@@ -11,6 +11,7 @@ import UsersPage from './UsersPage';
 import Footer from './Footer';
 import TextPage from './TextPage';
 import './App.css';
+import TagsPage from './TagsPage';
 
 // Pages where the sidebar should be hidden (e.g. login)
 const NO_SIDEBAR_ROUTES = ['/login'];
@@ -46,6 +47,7 @@ function App() {
             <Route path="/questions/ask" element={<AskQuestion />} />
             <Route path="/profile" element={<ProfileDashboard />} />
             <Route path="/users" element={<UsersPage />} />
+            <Route path="/tags" element={<TagsPage />} />
 
             <Route path="/help" element={<TextPage />} />
             <Route path="/chat" element={<TextPage />} />

@@ -22,8 +22,10 @@ public class TagController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TagResponseDTO>> getAllTags() {
-        return ResponseEntity.ok(tagService.getAllTags());
+    public ResponseEntity<List<TagResponseDTO>> getAllTags(
+        @RequestParam(defaultValue = "popular") String sort,
+        @RequestParam(defaultValue = "") String search) {
+            return ResponseEntity.ok(tagService.getAllTagsWithFilters(sort, search));
     }
 
     @GetMapping("/{tagId}")

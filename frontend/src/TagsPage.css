@@ -1,0 +1,126 @@
+.tags-page {
+    padding: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    color: var(--color-text-primary, #f8f9fa);
+}
+
+.tags-title {
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 16px;
+}
+
+.tags-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    color: var(--color-text-secondary, #bbc0c4);
+    max-width: 700px;
+}
+
+.tags-filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.search-wrapper {
+    position: relative;
+    flex-grow: 1;
+    max-width: 320px;
+}
+
+.tag-search-input {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    background-color: var(--color-bg-input, #1c1d1f);
+    border: 1px solid var(--color-border, #3d3e40);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #7f8386;
+}
+
+.tag-tabs {
+    display: flex;
+    border: 1px solid var(--color-border, #3d3e40);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.tag-tab {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    color: var(--color-text-secondary, #bbc0c4);
+    cursor: pointer;
+    font-size: 0.85rem;
+    border-right: 1px solid var(--color-border, #3d3e40);
+}
+
+.tag-tab:last-child {
+    border-right: none;
+}
+
+.tag-tab--active {
+    background-color: var(--color-bg-active, #2d2e30);
+    color: #fff;
+}
+
+.tags-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.tag-card {
+    background-color: var(--color-bg-card, #1e1f21);
+    border: 1px solid var(--color-border, #2d2e30);
+    border-radius: 4px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px;
+}
+
+.tag-badge {
+    align-self: flex-start;
+    background-color: var(--color-tag-bg, #2d3748);
+    color: var(--color-tag-text, #63b3ed);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+.tag-card-description {
+    font-size: 0.82rem;
+    color: var(--color-text-secondary, #bbc0c4);
+    line-height: 1.4;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.tag-card-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #7f8386;
+}

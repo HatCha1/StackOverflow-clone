@@ -48,6 +48,13 @@ public class TagService {
                 .toList();
     }
 
+    public List<TagResponseDTO> getAllTagsWithFilters(String sort, String search) {
+        String cleanSort = (sort == null) ? "popular" : sort.toLowerCase().trim();
+        String cleanSearch = (search == null) ? "" : search.trim();
+
+        return tagRepository.findAllWithStatistics(cleanSort, cleanSearch);
+    }
+
     private TagResponseDTO convertToResponse(Tag tag) {
         return TagResponseDTO.builder()
                 .tagId(tag.getTagId())
