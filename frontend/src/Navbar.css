@@ -1,0 +1,163 @@
+/* ─── Navbar ─── */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(14, 15, 19, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #2d303e;
+  height: 52px;
+}
+
+.navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* ─── Brand ─── */
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+
+.navbar-brand:hover {
+  opacity: 0.85;
+}
+
+.navbar-brand-text {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #edeef0;
+  letter-spacing: -0.3px;
+}
+
+.navbar-brand-accent {
+  color: #f48225;
+}
+
+/* ─── Right side ─── */
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ─── Avatar / Username link ─── */
+
+.navbar-avatar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  color: #b0b3c5;
+  text-decoration: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
+.navbar-avatar:hover {
+  background: #1c1e28;
+  color: #edeef0;
+}
+
+.navbar-username {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Buttons ─── */
+
+.navbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  font-family: inherit;
+  transition: background 0.2s, opacity 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.navbar-btn--ask {
+  background: #0a95ff;
+  color: #fff;
+}
+
+.navbar-btn--ask:hover {
+  background: #0080dd;
+  color: #fff;
+}
+
+.navbar-btn--primary {
+  background: #0a95ff;
+  color: #fff;
+}
+
+.navbar-btn--primary:hover {
+  background: #0080dd;
+  color: #fff;
+}
+
+.navbar-btn--secondary {
+  background: transparent;
+  color: #b0b3c5;
+  border: 1px solid #2d303e;
+}
+
+.navbar-btn--secondary:hover {
+  background: #1c1e28;
+  color: #edeef0;
+  border-color: #444760;
+}
+
+.navbar-btn--logout {
+  background: transparent;
+  color: #8b8fa7;
+  border: 1px solid transparent;
+  padding: 6px 12px;
+}
+
+.navbar-btn--logout:hover {
+  color: #d93025;
+  border-color: #d93025;
+}
+
+/* ─── Responsive ─── */
+
+@media (max-width: 600px) {
+  .navbar-username {
+    display: none;
+  }
+
+  .navbar-brand-text {
+    display: none;
+  }
+
+  .navbar-btn--ask span {
+    display: none;
+  }
+}
