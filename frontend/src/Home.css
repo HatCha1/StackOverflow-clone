@@ -451,6 +451,15 @@
     align-items: flex-start;
     gap: var(--space-2);
   }
+
+  .pagination-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .per-page-group {
+    margin-top: var(--space-2);
+  }
 }
 
 /* ─── Home Two-Column Layout ─── */
@@ -607,3 +616,78 @@
   }
 }
 
+/* ─── Pagination ─── */
+
+.pagination-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  padding: var(--space-4) 0;
+  flex-wrap: wrap;
+}
+
+.pagination-pages,
+.per-page-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.pagination-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pagination-btn {
+  min-width: 36px;
+  height: 34px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+.pagination-btn--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+
+.pagination-btn--active:hover {
+  color: white;
+  background: var(--color-primary-hover);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  padding: 0 var(--space-1);
+}
+
+.per-page-label {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-left: var(--space-2);
+}

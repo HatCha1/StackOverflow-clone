@@ -170,6 +170,9 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [badges, setBadges] = useState([]);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
+
   useEffect(() => {
     async function fetchQuestions() {
       setIsLoading(true);
@@ -203,6 +206,22 @@ export default function Home() {
     fetchUserData();
   }, []);
 
+  const totalPages = Math.ceil(questions.length / perPage);
+
+  const startIndex = (currentPage - 1) * perPage;
+  const endIndex = startIndex + perPage;
+
+  const visibleQuestions = questions.slice(startIndex, endIndex);
+
+  function goToPage(page) {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  }
+
+  function changePerPage(value) {
+    setPerPage(value);
+    setCurrentPage(1);
+  }
 
   return (
     <div className="home-layout">
@@ -241,15 +260,77 @@ export default function Home() {
               </div>
             )}
             {!isLoading && !error && questions.length > 0 && (
-              <div className="question-list">
-                {questions.map((q) => (
-                  <QuestionCard
-                    key={q.questionId}
-                    question={q}
-                    onClick={() => navigate(`/questions/${q.questionId}`)}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="question-list">
+                  {visibleQuestions.map((q) => (
+                    <QuestionCard
+                      key={q.questionId}
+                      question={q}
+                      onClick={() => navigate(`/questions/${q.questionId}`)}
+                    />
+                  ))}
+                </div>
+
+                <div className="pagination-row">
+                  <div className="pagination-pages">
+                    <button
+                      className="pagination-btn"
+                      disabled={currentPage === 1}
+                      onClick={() => goToPage(currentPage - 1)}
+                    >
+                      Prev
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((page) => {
+                        return (
+                          page === 1 ||
+                          page === totalPages ||
+                          Math.abs(page - currentPage) <= 1
+                        );
+                      })
+                      .map((page, index, arr) => (
+                        <span key={page} className="pagination-group">
+                          {index > 0 && page - arr[index - 1] > 1 && (
+                            <span className="pagination-ellipsis">...</span>
+                          )}
+
+                          <button
+                            className={`pagination-btn ${
+                              currentPage === page ? 'pagination-btn--active' : ''
+                            }`}
+                            onClick={() => goToPage(page)}
+                          >
+                            {page}
+                          </button>
+                        </span>
+                      ))}
+
+                    <button
+                      className="pagination-btn"
+                      disabled={currentPage === totalPages}
+                      onClick={() => goToPage(currentPage + 1)}
+                    >
+                      Next
+                    </button>
+                  </div>
+
+                  <div className="per-page-group">
+                    {[15, 30, 50].map((value) => (
+                      <button
+                        key={value}
+                        className={`pagination-btn ${
+                          perPage === value ? 'pagination-btn--active' : ''
+                        }`}
+                        onClick={() => changePerPage(value)}
+                      >
+                        {value}
+                      </button>
+                    ))}
+                    <span className="per-page-label">per page</span>
+                  </div>
+                </div>
+              </>
             )}
           </div>
 
