@@ -8,6 +8,8 @@ import AskQuestion from './AskQuestion';
 import ProfileDashboard from './ProfileDashboard';
 import LeftSidebar from './LeftSidebar';
 import UsersPage from './UsersPage';
+import Footer from './Footer';
+import TextPage from './TextPage';
 import './App.css';
 
 // Pages where the sidebar should be hidden (e.g. login)
@@ -44,9 +46,39 @@ function App() {
             <Route path="/questions/ask" element={<AskQuestion />} />
             <Route path="/profile" element={<ProfileDashboard />} />
             <Route path="/users" element={<UsersPage />} />
+
+            <Route path="/help" element={<TextPage />} />
+            <Route path="/chat" element={<TextPage />} />
+            <Route path="/stack-internal" element={<TextPage />} />
+            <Route path="/data-licensing" element={<TextPage />} />
+            <Route path="/ads" element={<TextPage />} />
+            <Route path="/about" element={<TextPage />} />
+            <Route path="/press" element={<TextPage />} />
+            <Route path="/work-here" element={<TextPage />} />
+            <Route path="/legal" element={<TextPage />} />
+            <Route path="/privacy-policy" element={<TextPage />} />
+            <Route path="/terms-of-service" element={<TextPage />} />
+            <Route path="/contact" element={<TextPage />} />
+            <Route path="/cookie-settings" element={<TextPage />} />
+            <Route path="/cookie-policy" element={<TextPage />} />
+            <Route path="/technology" element={<TextPage />} />
+            <Route path="/culture-recreation" element={<TextPage />} />
+            <Route path="/life-arts" element={<TextPage />} />
+            <Route path="/science" element={<TextPage />} />
+            <Route path="/professional" element={<TextPage />} />
+            <Route path="/business" element={<TextPage />} />
+            <Route path="/api" element={<TextPage />} />
+            <Route path="/data" element={<TextPage />} />
+            <Route path="/blog" element={<TextPage />} />
+            <Route path="/facebook" element={<TextPage />} />
+            <Route path="/twitter" element={<TextPage />} />
+            <Route path="/linkedin" element={<TextPage />} />
+            <Route path="/instagram" element={<TextPage />} />
           </Routes>
         </main>
       </div>
+
+      <Footer />
     </div>
   );
 }

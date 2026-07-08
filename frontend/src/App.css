@@ -21,3 +21,14 @@
   flex: 1;
   min-width: 0; /* prevents overflow in flex children */
 }
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+}
