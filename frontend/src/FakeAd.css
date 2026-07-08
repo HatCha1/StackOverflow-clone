@@ -1,0 +1,208 @@
+/* ─── Fake Ads ─── */
+
+.fake-ad {
+  position: relative;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(244, 130, 37, 0.2), transparent 35%),
+    radial-gradient(circle at 80% 80%, rgba(10, 149, 255, 0.18), transparent 40%),
+    var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  cursor: default;
+}
+
+.fake-ad-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  margin-bottom: var(--space-3);
+}
+
+.fake-ad-close {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: rgba(14, 15, 19, 0.75);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.fake-ad-close:hover {
+  color: white;
+  border-color: var(--color-error);
+  background: rgba(229, 72, 77, 0.18);
+}
+
+.fake-ad-close svg {
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.fake-ad-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.fake-ad-emoji {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.fake-ad-emoji--large {
+  width: 76px;
+  height: 76px;
+  font-size: 42px;
+}
+
+.fake-ad h3 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+}
+
+.fake-ad p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.fake-ad-link {
+  display: inline-block;
+  margin-top: var(--space-2);
+  color: var(--color-accent);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.fake-ad-button {
+  display: inline-flex;
+  justify-content: center;
+  margin-top: var(--space-4);
+  padding: var(--space-2) var(--space-5);
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--color-primary), #e06b10);
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: 800;
+}
+
+/* Inline ad inside question list */
+
+.fake-ad--inline {
+  padding: var(--space-5);
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+}
+
+/* Right sidebar ad */
+
+.fake-ad--sidebar {
+  width: 260px;
+  min-height: 360px;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  position: sticky;
+  top: 76px;
+}
+
+.fake-ad-vertical {
+  min-height: 295px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+/* Bottom banner ad */
+
+.fake-ad-bottom-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 2000;
+  width: min(760px, calc(100vw - 32px));
+}
+
+.fake-ad--bottom {
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-lg);
+}
+
+.fake-ad-bottom-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-right: 40px;
+}
+
+.fake-ad-bottom-title {
+  font-size: var(--font-size-base);
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.fake-ad-bottom-text {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.fake-ad-close--bottom {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Mobile */
+
+@media (max-width: 900px) {
+  .fake-ad--sidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .fake-ad-content,
+  .fake-ad-bottom-main {
+    align-items: flex-start;
+  }
+
+  .fake-ad-bottom-wrap {
+    bottom: 10px;
+    width: calc(100vw - 20px);
+  }
+
+  .fake-ad--bottom {
+    padding: var(--space-3);
+  }
+
+  .fake-ad-bottom-main {
+    padding-right: 34px;
+  }
+}

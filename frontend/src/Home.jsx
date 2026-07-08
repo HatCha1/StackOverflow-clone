@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { InlineFakeAd, SidebarFakeAd, BottomFakeAd } from './FakeAd';
 import './Home.css';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
@@ -335,14 +336,25 @@ export default function Home() {
             )}
             {!isLoading && !error && questions.length > 0 && (
               <>
-                <div className="question-list">
-                  {visibleQuestions.map((q) => (
-                    <QuestionCard
-                      key={q.questionId}
-                      question={q}
-                      onClick={() => navigate(`/questions/${q.questionId}`)}
-                    />
-                  ))}
+                <div className="questions-list">
+                  {visibleQuestions.flatMap((q, index) => {
+                    const card = (
+                      <QuestionCard
+                        key={`question-${q.questionId}`}
+                        question={q}
+                        onClick={() => navigate(`/questions/${q.questionId}`)}
+                      />
+                    );
+
+                    if (index === 2) {
+                      return [
+                        <InlineFakeAd key="inline-fake-ad" />,
+                        card,
+                      ];
+                    }
+
+                    return [card];
+                  })}
                 </div>
 
                 <div className="pagination-row">
@@ -451,6 +463,8 @@ export default function Home() {
             </aside>
           )}
 
+        <SidebarFakeAd />
+        <BottomFakeAd />
     </div>
   );
 }

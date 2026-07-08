@@ -466,16 +466,19 @@
 
 .home-layout {
   display: grid;
-  grid-template-columns: 1fr 260px;
+  grid-template-columns: minmax(0, 860px) 260px;
   gap: 24px;
   align-items: start;
-  padding: 24px 24px 24px 24px;
+  justify-content: center;
+  padding: 24px;
   min-height: calc(100dvh - 52px);
+  background: var(--color-bg);
 }
 
-/* when sidebar is absent (logged out), questions span full width */
-.home-layout > .home-container:only-child {
-  grid-column: 1 / -1;
+.home-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 /* ─── Sidebar ─── */
@@ -604,15 +607,10 @@
 
 /* ─── Responsive: collapse sidebar on small screens ─── */
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .home-layout {
     grid-template-columns: 1fr;
-    padding: 0 16px;
-  }
-
-  .home-sidebar {
-    position: static;
-    order: -1; /* Show sidebar above questions on mobile */
+    padding: 16px;
   }
 }
 
