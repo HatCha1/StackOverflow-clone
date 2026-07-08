@@ -68,6 +68,15 @@ public class UserController {
         return ResponseEntity.ok(new LoginResponseDTO(token, user.getUsername()));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getMe(Authentication authentication) {
+        String username = authentication.getName(); // Extracted from JWT by Spring Security
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        UserResponseDTO dto = userService.getUserById(user.getUserId());
+        return ResponseEntity.ok(dto);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));

@@ -72,7 +72,7 @@ public class SecurityConfig {
                 "https://pasu-ssc-todolist.xyz",
                 "http://pasu-ssc-todolist.xyz"
         )); // Whitelist React server ports + production domain
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
 

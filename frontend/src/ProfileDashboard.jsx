@@ -123,7 +123,7 @@ export default function ProfileDashboard() {
 
         {/* ─── Tab Content ─── */}
         {tab === 'overview' && (
-          <OverviewTab bookmarks={bookmarks} badges={badges} />
+          <OverviewTab user={user} bookmarks={bookmarks} badges={badges} />
         )}
         {tab === 'settings' && (
           <SettingsTab user={user} onProfileUpdated={loadProfile} navigate={navigate} />
@@ -140,46 +140,83 @@ export default function ProfileDashboard() {
 // Overview Tab
 // ─────────────────────────────────────
 
-function OverviewTab({ bookmarks, badges }) {
+function OverviewTab({ user, bookmarks, badges }) {
   return (
-    <div className="profile-grid">
-      {/* Bookmarks */}
-      <div className="profile-card">
-        <h3>Bookmarks ({bookmarks.length})</h3>
-        {bookmarks.length === 0 ? (
-          <p className="profile-empty">No bookmarked questions yet.</p>
-        ) : (
-          <ul className="bookmark-list">
-            {bookmarks.map((b, i) => (
-              <li key={i} className="bookmark-item">
-                <a href={`/questions/${b.questionId}`}>{b.questionTitle}</a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Badges */}
-      <div className="profile-card">
-        <h3>Earned Badges ({badges.length})</h3>
-        {badges.length === 0 ? (
-          <p className="profile-empty">Participate on the platform to earn reward badges.</p>
-        ) : (
-          <div className="badge-grid">
-            {badges.map((badge, idx) => {
-              const typeClass = badge.badgeType === 'GOLD' ? 'badge-chip--gold'
-                : badge.badgeType === 'SILVER' ? 'badge-chip--silver'
-                : 'badge-chip--bronze';
-              return (
-                <div key={idx} className={`badge-chip ${typeClass}`}>
-                  <span className="badge-dot">●</span>
-                  <strong>{badge.badgeName}</strong>
-                  {badge.description && <div className="badge-description">{badge.description}</div>}
-                </div>
-              );
-            })}
+    <div>
+      {/* Profile Info Card */}
+      {user && (
+        <div className="profile-card" style={{ marginBottom: '20px' }}>
+          <h3>Profile Information</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <div style={{ fontSize: '11px', color: '#8b8fa7', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Display Name</div>
+              <div style={{ color: '#edeef0', fontSize: '14px' }}>{user.displayName || '—'}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '11px', color: '#8b8fa7', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Username</div>
+              <div style={{ color: '#edeef0', fontSize: '14px' }}>@{user.username}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '11px', color: '#8b8fa7', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Email</div>
+              <div style={{ color: '#edeef0', fontSize: '14px' }}>{user.email}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '11px', color: '#8b8fa7', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Reputation</div>
+              <div style={{ color: '#f48225', fontSize: '14px', fontWeight: 700 }}>{user.reputation ?? 0} pts</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '11px', color: '#8b8fa7', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Member Since</div>
+              <div style={{ color: '#edeef0', fontSize: '14px' }}>{formatDate(user.createdAt)}</div>
+            </div>
+            {user.bio && (
+              <div style={{ gridColumn: '1 / -1' }}>
+                <div style={{ fontSize: '11px', color: '#8b8fa7', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Bio</div>
+                <div style={{ color: '#b0b3c5', fontSize: '14px', lineHeight: '1.5' }}>{user.bio}</div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
+      )}
+
+      <div className="profile-grid">
+        {/* Bookmarks */}
+        <div className="profile-card">
+          <h3>Bookmarks ({bookmarks.length})</h3>
+          {bookmarks.length === 0 ? (
+            <p className="profile-empty">No bookmarked questions yet.</p>
+          ) : (
+            <ul className="bookmark-list">
+              {bookmarks.map((b, i) => (
+                <li key={i} className="bookmark-item">
+                  <a href={`/questions/${b.questionId}`}>{b.questionTitle}</a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Badges */}
+        <div className="profile-card">
+          <h3>Earned Badges ({badges.length})</h3>
+          {badges.length === 0 ? (
+            <p className="profile-empty">Participate on the platform to earn reward badges.</p>
+          ) : (
+            <div className="badge-grid">
+              {badges.map((badge, idx) => {
+                const typeClass = badge.badgeType === 'GOLD' ? 'badge-chip--gold'
+                  : badge.badgeType === 'SILVER' ? 'badge-chip--silver'
+                  : 'badge-chip--bronze';
+                return (
+                  <div key={idx} className={`badge-chip ${typeClass}`}>
+                    <span className="badge-dot">●</span>
+                    <strong>{badge.badgeName}</strong>
+                    {badge.description && <div className="badge-description">{badge.description}</div>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
