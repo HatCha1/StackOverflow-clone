@@ -333,6 +333,12 @@ export default function QuestionDetail() {
 
   const [isBookmarked, setIsBookmarked] = useState(false);
 
+  // Edit question state
+  const [isEditingQuestion, setIsEditingQuestion] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editBody, setEditBody] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+
   // Answer form
   const [answerBody, setAnswerBody] = useState('');
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
@@ -424,6 +430,41 @@ export default function QuestionDetail() {
     } catch (_) { }
   }
 
+  async function handleEditQuestion() {
+    setEditTitle(question.title);
+    setEditBody(question.body);
+    setIsEditingQuestion(true);
+  }
+
+  async function handleSaveQuestion() {
+    if (!editTitle.trim() || !editBody.trim()) return;
+    setSavingEdit(true);
+    try {
+      const res = await authFetch(`${API_BASE}/questions/${questionId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ title: editTitle.trim(), body: editBody.trim() }),
+      });
+      if (!res || !res.ok) throw new Error('Failed to save question');
+      setIsEditingQuestion(false);
+      loadData();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
+  async function handleDeleteQuestion() {
+    if (!window.confirm('Are you sure you want to delete this question? This action cannot be undone.')) return;
+    try {
+      const res = await authFetch(`${API_BASE}/questions/${questionId}`, { method: 'DELETE' });
+      if (!res || !res.ok) throw new Error('Failed to delete question');
+      navigate('/');
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   async function handleVoteAnswer(answerId, voteType) {
     try {
       await authFetch(`${API_BASE}/answers/${answerId}/vote`, {
@@ -501,15 +542,60 @@ export default function QuestionDetail() {
         {/* ─── Question Section ─── */}
         <section className="question-section">
           <div className="question-header">
-            <h1 className="question-detail-title">
-              {question.title}
-              {(question.isClosed || question.closed) && (
-                <span className="badge badge--closed">Closed</span>
+            {isEditingQuestion ? (
+              <input
+                className="edit-title-input"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                style={{ width: '100%', fontSize: '1.4rem', fontWeight: 700, background: '#1c1e28', color: '#edeef0', border: '1px solid #0a95ff', borderRadius: '6px', padding: '8px 12px', marginBottom: '8px' }}
+              />
+            ) : (
+              <h1 className="question-detail-title">
+                {question.title}
+                {(question.isClosed || question.closed) && (
+                  <span className="badge badge--closed">Closed</span>
+                )}
+              </h1>
+            )}
+            <div className="question-header-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <span className="meta-item"><ClockIcon /> asked {formatDate(question.createdAt)}</span>
+                <span className="meta-item"><UserIcon /> {question.authorName ?? 'Unknown'}</span>
+              </div>
+              {/* Edit/Delete buttons — visible only to the question author */}
+              {getUsername() === question.authorName && !isEditingQuestion && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={handleEditQuestion}
+                    style={{ background: 'transparent', border: '1px solid #0a95ff', color: '#0a95ff', borderRadius: '4px', padding: '4px 12px', cursor: 'pointer', fontSize: '12px' }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={handleDeleteQuestion}
+                    style={{ background: 'transparent', border: '1px solid #d93025', color: '#d93025', borderRadius: '4px', padding: '4px 12px', cursor: 'pointer', fontSize: '12px' }}
+                  >
+                    Delete
+                  </button>
+                </div>
               )}
-            </h1>
-            <div className="question-header-meta">
-              <span className="meta-item"><ClockIcon /> asked {formatDate(question.createdAt)}</span>
-              <span className="meta-item"><UserIcon /> {question.authorName ?? 'Unknown'}</span>
+              {isEditingQuestion && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={handleSaveQuestion}
+                    disabled={savingEdit}
+                    style={{ background: '#0a95ff', border: 'none', color: '#fff', borderRadius: '4px', padding: '4px 14px', cursor: 'pointer', fontSize: '12px' }}
+                  >
+                    {savingEdit ? 'Saving…' : 'Save'}
+                  </button>
+                  <button
+                    onClick={() => setIsEditingQuestion(false)}
+                    style={{ background: 'transparent', border: '1px solid #8b8fa7', color: '#8b8fa7', borderRadius: '4px', padding: '4px 12px', cursor: 'pointer', fontSize: '12px' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -534,7 +620,16 @@ export default function QuestionDetail() {
 
             {/* Body */}
             <div className="question-body-content">
-              <p className="question-body-text">{question.body}</p>
+              {isEditingQuestion ? (
+                <textarea
+                  value={editBody}
+                  onChange={(e) => setEditBody(e.target.value)}
+                  rows={10}
+                  style={{ width: '100%', background: '#1c1e28', color: '#edeef0', border: '1px solid #0a95ff', borderRadius: '6px', padding: '12px', fontSize: '14px', resize: 'vertical' }}
+                />
+              ) : (
+                <p className="question-body-text">{question.body}</p>
+              )}
 
               <CommentList
                 comments={comments}
@@ -545,6 +640,7 @@ export default function QuestionDetail() {
             </div>
           </div>
         </section>
+
 
         {/* ─── Answers Section ─── */}
         <section className="answers-section">
