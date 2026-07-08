@@ -143,10 +143,97 @@ function VoteButtons({ score, userVote, onUpvote, onDownvote, vertical = true })
 
 // ─── Comment List ───
 
-function CommentList({ comments, onAddComment, targetId, type }) {
+function CommentItem({ comment, onDelete, onUpdate }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editBody, setEditBody] = useState('');
+  const [saving, setSaving] = useState(false);
+  const isAuthor = getUsername() === comment.authorName;
+
+  async function handleSave() {
+    if (!editBody.trim()) return;
+    setSaving(true);
+    try {
+      const res = await authFetch(`${API_BASE}/comments/${comment.commentId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ body: editBody.trim() }),
+      });
+      if (!res || !res.ok) throw new Error('Failed to update comment');
+      onUpdate(comment.commentId, editBody.trim());
+      setIsEditing(false);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!window.confirm('Delete this comment?')) return;
+    try {
+      const res = await authFetch(`${API_BASE}/comments/${comment.commentId}`, { method: 'DELETE' });
+      if (!res || !res.ok) throw new Error('Failed to delete comment');
+      onDelete(comment.commentId);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  return (
+    <li className="comment-item">
+      {isEditing ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+          <textarea
+            value={editBody}
+            onChange={(e) => setEditBody(e.target.value)}
+            rows={2}
+            style={{ background: '#1c1e28', color: '#edeef0', border: '1px solid #0a95ff', borderRadius: '4px', padding: '6px 8px', fontSize: '13px', resize: 'vertical', width: '100%' }}
+            autoFocus
+          />
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button onClick={handleSave} disabled={saving} style={{ background: '#0a95ff', border: 'none', color: '#fff', borderRadius: '4px', padding: '2px 12px', cursor: 'pointer', fontSize: '11px' }}>
+              {saving ? 'Saving…' : 'Save'}
+            </button>
+            <button onClick={() => setIsEditing(false)} style={{ background: 'transparent', border: '1px solid #8b8fa7', color: '#8b8fa7', borderRadius: '4px', padding: '2px 10px', cursor: 'pointer', fontSize: '11px' }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <span className="comment-body">{comment.body}</span>
+          <span className="comment-meta">
+            — <strong>{comment.authorName}</strong> {formatDate(comment.createdAt)}
+          </span>
+          {isAuthor && (
+            <span style={{ display: 'inline-flex', gap: '6px', marginLeft: '8px' }}>
+              <button
+                onClick={() => { setEditBody(comment.body); setIsEditing(true); }}
+                style={{ background: 'none', border: 'none', color: '#0a95ff', cursor: 'pointer', fontSize: '11px', padding: 0 }}
+              >
+                edit
+              </button>
+              <button
+                onClick={handleDelete}
+                style={{ background: 'none', border: 'none', color: '#d93025', cursor: 'pointer', fontSize: '11px', padding: 0 }}
+              >
+                delete
+              </button>
+            </span>
+          )}
+        </>
+      )}
+    </li>
+  );
+}
+
+function CommentList({ comments: initialComments, onAddComment, targetId, type }) {
+  const [comments, setComments] = useState(initialComments ?? []);
   const [showForm, setShowForm] = useState(false);
   const [body, setBody] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  // Keep in sync if parent refreshes
+  useEffect(() => { setComments(initialComments ?? []); }, [initialComments]);
 
   async function handleSubmitComment(e) {
     e.preventDefault();
@@ -166,6 +253,7 @@ function CommentList({ comments, onAddComment, targetId, type }) {
       });
       if (!res.ok) throw new Error('Failed to post comment');
       const newComment = await res.json();
+      setComments((prev) => [...prev, newComment]);
       onAddComment(newComment);
       setBody('');
       setShowForm(false);
@@ -181,12 +269,12 @@ function CommentList({ comments, onAddComment, targetId, type }) {
       {comments.length > 0 && (
         <ul className="comment-list">
           {comments.map((c) => (
-            <li key={c.commentId} className="comment-item">
-              <span className="comment-body">{c.body}</span>
-              <span className="comment-meta">
-                — <strong>{c.authorName}</strong> {formatDate(c.createdAt)}
-              </span>
-            </li>
+            <CommentItem
+              key={c.commentId}
+              comment={c}
+              onDelete={(id) => setComments((prev) => prev.filter((x) => x.commentId !== id))}
+              onUpdate={(id, newBody) => setComments((prev) => prev.map((x) => x.commentId === id ? { ...x, body: newBody } : x))}
+            />
           ))}
         </ul>
       )}
@@ -217,6 +305,7 @@ function CommentList({ comments, onAddComment, targetId, type }) {
     </div>
   );
 }
+
 
 // ─── Answer Card ───
 
