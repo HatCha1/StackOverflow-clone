@@ -39,7 +39,15 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Set app stateless
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
+
+                        // Secures specific operational endpoints before the GET wildcards catch them
+                        .requestMatchers("/api/questions/*/bookmark").authenticated()
+                        .requestMatchers("/api/answers/*/accept").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/questions/*/answers").authenticated()
+
                         .requestMatchers(HttpMethod.GET, "/api/questions/**").permitAll() // Anyone can browse question feeds
                         .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()  // Anyone can read comments
                         .requestMatchers(HttpMethod.GET, "/api/answers/**").permitAll()

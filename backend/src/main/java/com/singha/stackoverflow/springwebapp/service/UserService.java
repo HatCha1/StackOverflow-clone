@@ -31,6 +31,7 @@ public class UserService {
 
         String hashedPassword = passwordEncoder.encode(user.getPasswordHash());
         user.setPasswordHash(hashedPassword);
+        user.setReputation(0);
         user.setCreatedAt(java.time.LocalDateTime.now());
         return toDTO(userRepository.save(user));
     }

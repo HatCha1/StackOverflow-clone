@@ -13,6 +13,7 @@ import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,13 +30,15 @@ public class BookmarkService {
     @Autowired
     private QuestionRepository questionRepository;
 
+    @Transactional
     public BookmarkResponseDTO addBookmark(Long questionId) {
         String username = Objects.requireNonNull(SecurityContextHolder.getContext()
                         .getAuthentication())
                 .getName();
 
         User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .or(() -> userRepository.findByEmail(username))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
@@ -58,26 +61,30 @@ public class BookmarkService {
         return convertToResponse(bookmarkRepository.save(bookmark));
     }
 
+    @Transactional(readOnly = true)
     public List<BookmarkResponseDTO> getBookmarksByUserId() {
         String username = Objects.requireNonNull(SecurityContextHolder.getContext()
                         .getAuthentication())
                         .getName();
 
         User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .or(() -> userRepository.findByEmail(username))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
         return bookmarkRepository.findByUser_UserIdOrderByCreatedAtDesc(currentUser.getUserId()).stream()
                 .map(this::convertToResponse)
                 .toList();
     }
 
+    @Transactional
     public void removeBookmark(Long questionId) {
         String username = Objects.requireNonNull(SecurityContextHolder.getContext()
                         .getAuthentication())
                 .getName();
 
         User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .or(() -> userRepository.findByEmail(username))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
         BookmarkId id = new BookmarkId(currentUser.getUserId(), questionId);
 

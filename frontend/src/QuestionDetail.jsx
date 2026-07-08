@@ -243,7 +243,7 @@ function AnswerCard({ answer, questionAuthorName, onVote, onAccept }) {
 
   const currentUsername = getUsername();
   const isAccepted = answer.isAccepted || answer.accepted;
-  const canAccept = questionAuthorName === currentUsername && !isAccepted;
+  const canAccept = questionAuthorName === currentUsername;
 
   return (
     <div className={`answer-card ${isAccepted ? 'answer-card--accepted' : ''}`}>
@@ -263,13 +263,13 @@ function AnswerCard({ answer, questionAuthorName, onVote, onAccept }) {
             onDownvote={() => onVote(answer.answerId, 'DOWNVOTE')}
           />
           {canAccept && (
-            <button
-              className="btn-accept"
-              onClick={() => onAccept(answer.answerId)}
-              title="Mark as accepted answer"
-            >
-              <CheckIcon />
-            </button>
+              <button
+                  className={`btn-accept ${isAccepted ? 'btn-accept--active' : ''}`}
+                  onClick={() => onAccept(answer.answerId)}
+                  title={isAccepted ? "Unmark as accepted answer" : "Mark as accepted answer"}
+              >
+                <CheckIcon />
+              </button>
           )}
         </div>
 
@@ -353,15 +353,25 @@ export default function QuestionDetail() {
       ]);
 
       if (!qRes.ok) throw new Error('Question not found');
-      const [q, a, c] = await Promise.all([qRes.json(), aRes.json(), cRes.json()]);
-      setQuestion(q);
-      // Sort: accepted first, then by creation date
-      setAnswers([...a].sort((x, y) => {
-        if ((x.isAccepted || x.accepted) && !(y.isAccepted || y.accepted)) return -1;
-        if (!(x.isAccepted || x.accepted) && (y.isAccepted || y.accepted)) return 1;
+      const qData = await qRes.json();
+      const aData = await aRes.json();
+      const cData = await cRes.json();
+      setQuestion(qData);
+
+      const normalizedAnswers = Array.isArray(aData) ? aData.map(ans => ({
+        ...ans,
+        isAccepted: ans.isAccepted !== undefined ? ans.isAccepted : ans.accepted
+      })) : [];
+
+      const sortedAnswers = [...normalizedAnswers].sort((x, y) => {
+        const xAcc = x.isAccepted ? 1 : 0;
+        const yAcc = y.isAccepted ? 1 : 0;
+        if (xAcc !== yAcc) return yAcc - xAcc;
         return new Date(x.createdAt) - new Date(y.createdAt);
-      }));
-      setComments(Array.isArray(c) ? c : []);
+      });
+
+      setAnswers(sortedAnswers);
+      setComments(Array.isArray(cData) ? cData : []);
 
       if (token) {
         const bRes = await fetch(`${API_BASE}/users/bookmarks`, { headers });
@@ -381,6 +391,7 @@ export default function QuestionDetail() {
   useEffect(() => { loadData(); }, [loadData]);
 
   async function handleToggleBookmark() {
+    const token = getToken();
     if (!token) {
       navigate('/login');
       return;
@@ -511,6 +522,14 @@ export default function QuestionDetail() {
                 onUpvote={() => handleVoteQuestion('UPVOTE')}
                 onDownvote={() => handleVoteQuestion('DOWNVOTE')}
               />
+              <button
+                  className={`bookmark-btn ${isBookmarked ? 'bookmark-btn--active' : ''}`}
+                  onClick={handleToggleBookmark}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', marginTop: '12px' }}
+                  title={isBookmarked ? "Remove from bookmarks" : "Save this question"}
+              >
+                <BookmarkIcon filled={isBookmarked} />
+              </button>
             </div>
 
             {/* Body */}

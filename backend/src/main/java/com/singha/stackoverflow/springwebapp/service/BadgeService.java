@@ -12,6 +12,7 @@ import com.singha.stackoverflow.springwebapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -81,14 +82,15 @@ public class BadgeService {
         userBadgesRepository.save(userBadge);
     }
 
-
+    @Transactional
     public void checkBadges() {
         String username = Objects.requireNonNull(SecurityContextHolder.getContext()
                         .getAuthentication())
                         .getName();
 
         User currentUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .or(() -> userRepository.findByEmail(username))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
         for (BadgeRule rule : badgeRules) {
             if (rule.isSatisfied(currentUser)) {

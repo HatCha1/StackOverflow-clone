@@ -11,7 +11,8 @@ import java.util.Date;
 public class JwtUtils {
 
     // Generate a secure signing key for HS256 encryption
-    private final SecretKey key = Jwts.SIG.HS256.key().build();
+    private static final String SECRET_STRING = "your-super-secret-secure-key-that-is-at-least-thirty-two-bytes-long";
+    private final SecretKey key = io.jsonwebtoken.security.Keys.hmacShaKeyFor(SECRET_STRING.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
     // 1. Generate token when user logs in successfully
     public String generateToken(String username) {
