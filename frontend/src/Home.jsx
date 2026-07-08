@@ -242,6 +242,80 @@ export default function Home() {
               </button>
             </div>
 
+            {/* ── Three widgets row (logged-in only) ── */}
+            {isLoggedIn && (
+              <div className="widgets-row">
+
+                {/* Reputation */}
+                <div className="widget-card widget-card--inline">
+                  <div className="widget-title">Reputation</div>
+                  <div className="widget-rep-number">{user?.reputation ?? 0}</div>
+                  <div className="widget-sparkline">
+                    {[20, 35, 28, 50, 40, 60, 45, 70, 55, 80].map((h, i) => (
+                      <div key={i} className="sparkline-bar" style={{ height: `${h}%` }} />
+                    ))}
+                  </div>
+                  <p className="widget-hint">
+                    Earn reputation by{' '}
+                    <Link to="/questions/ask" className="widget-link">Asking</Link>,{' '}
+                    <Link to="/" className="widget-link">Answering</Link>{' '}
+                    &amp; <Link to="/profile" className="widget-link">Editing</Link>.
+                  </p>
+                </div>
+
+                {/* Badge Progress */}
+                <div className="widget-card widget-card--inline">
+                  <div className="widget-header">
+                    <span className="widget-title">Badge progress</span>
+                    <Link to="/profile" className="widget-settings-icon" title="View badges">⚙</Link>
+                  </div>
+                  {badges.length === 0 ? (
+                    <>
+                      <div className="badge-progress-chip">
+                        <span className="badge-dot-bronze">●</span>
+                        Autobiographer — 0/1
+                      </div>
+                      <p className="widget-hint">Complete &quot;About Me&quot; section of user profile.</p>
+                    </>
+                  ) : (
+                    <div className="badge-progress-list">
+                      {badges.slice(0, 2).map((b, i) => {
+                        const dotClass = b.badgeType === 'GOLD' ? 'badge-dot-gold'
+                          : b.badgeType === 'SILVER' ? 'badge-dot-silver'
+                          : 'badge-dot-bronze';
+                        return (
+                          <div key={i} className="badge-progress-chip">
+                            <span className={dotClass}>●</span>
+                            {b.badgeName}
+                          </div>
+                        );
+                      })}
+                      {badges.length > 2 && (
+                        <p className="widget-hint" style={{ marginTop: '4px' }}>+{badges.length - 2} more earned</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Popular Tags */}
+                <div className="widget-card widget-card--inline">
+                  <div className="widget-header">
+                    <span className="widget-title">Watched tags</span>
+                    <Link to="/tags" className="widget-settings-icon" title="Browse tags">⚙</Link>
+                  </div>
+                  <div className="widget-tags">
+                    {Array.from(new Set(questions.flatMap((q) => q.tags ?? []))).slice(0, 8).map((tag) => (
+                      <span key={tag} className="widget-tag">{tag}</span>
+                    ))}
+                    {questions.flatMap((q) => q.tags ?? []).length === 0 && (
+                      <p className="widget-hint">Customize your content by watching tags.</p>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
             {isLoading && (
               <div className="questions-list" aria-busy="true">
                 {Array.from({ length: 5 }).map((_, i) => <QuestionSkeleton key={i} />)}
@@ -334,7 +408,7 @@ export default function Home() {
             )}
           </div>
 
-          {/* ─── Sidebar (logged-in users only) ─── */}
+          {/* ─── Right Sidebar (logged-in users only) ─── */}
           {isLoggedIn && (
             <aside className="home-sidebar">
               {/* User card */}
@@ -380,4 +454,3 @@ export default function Home() {
     </div>
   );
 }
-
