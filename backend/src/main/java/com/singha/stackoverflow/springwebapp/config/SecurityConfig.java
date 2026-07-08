@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()  // Anyone can read comments
                         .requestMatchers(HttpMethod.GET, "/api/answers/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/badges/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users", "/api/users/**").permitAll() // Public user profiles
 
                         // Protected Endpoints (Require a valid Authorization Bearer header token)
                         .anyRequest().authenticated()

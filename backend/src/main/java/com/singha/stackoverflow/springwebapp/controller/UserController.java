@@ -68,6 +68,11 @@ public class UserController {
         return ResponseEntity.ok(new LoginResponseDTO(token, user.getUsername()));
     }
 
+    @GetMapping
+    public ResponseEntity<java.util.List<UserResponseDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
     @GetMapping("/me")
     public ResponseEntity<UserResponseDTO> getMe(Authentication authentication) {
         String username = authentication.getName(); // Extracted from JWT by Spring Security

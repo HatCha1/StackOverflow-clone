@@ -43,6 +43,16 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
+    @Transactional(readOnly = true)
+    public java.util.List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll(
+                org.springframework.data.domain.Sort.by(
+                        org.springframework.data.domain.Sort.Direction.DESC, "reputation"))
+                .stream()
+                .map(this::toDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     // UPDATE — patch: only apply fields that were provided in the DTO
     @Transactional
     public UserResponseDTO updateUser(String username, UserUpdateDTO updateDTO) {

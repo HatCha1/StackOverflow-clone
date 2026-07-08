@@ -7,6 +7,7 @@ import AppNavbar from './Navbar';
 import AskQuestion from './AskQuestion';
 import ProfileDashboard from './ProfileDashboard';
 import LeftSidebar from './LeftSidebar';
+import UsersPage from './UsersPage';
 import './App.css';
 
 // Pages where the sidebar should be hidden (e.g. login)
@@ -42,6 +43,7 @@ function App() {
             <Route path="/questions/:id" element={<QuestionDetail />} />
             <Route path="/questions/ask" element={<AskQuestion />} />
             <Route path="/profile" element={<ProfileDashboard />} />
+            <Route path="/users" element={<UsersPage />} />
           </Routes>
         </main>
       </div>
