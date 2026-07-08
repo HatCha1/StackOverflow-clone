@@ -220,10 +220,15 @@ function CommentList({ comments, onAddComment, targetId, type }) {
 
 // ─── Answer Card ───
 
-function AnswerCard({ answer, questionAuthorName, onVote, onAccept }) {
+function AnswerCard({ answer, questionAuthorName, onVote, onAccept, onDelete }) {
   const [comments, setComments] = useState([]);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [showComments, setShowComments] = useState(false);
+
+  // Edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editBody, setEditBody] = useState('');
+  const [saving, setSaving] = useState(false);
 
   async function loadComments() {
     if (commentsLoaded) {
@@ -231,7 +236,7 @@ function AnswerCard({ answer, questionAuthorName, onVote, onAccept }) {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/comments/answer/${answer.answerId}`);  // not a real endpoint, handled via question
+      const res = await fetch(`${API_BASE}/comments/answer/${answer.answerId}`);
       if (res.ok) {
         const data = await res.json();
         setComments(data);
@@ -241,9 +246,39 @@ function AnswerCard({ answer, questionAuthorName, onVote, onAccept }) {
     setShowComments(true);
   }
 
+  async function handleSaveEdit() {
+    if (!editBody.trim()) return;
+    setSaving(true);
+    try {
+      const res = await authFetch(`${API_BASE}/answers/${answer.answerId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ body: editBody.trim() }),
+      });
+      if (!res || !res.ok) throw new Error('Failed to save answer');
+      answer.body = editBody.trim(); // optimistic update
+      setIsEditing(false);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!window.confirm('Are you sure you want to delete this answer?')) return;
+    try {
+      const res = await authFetch(`${API_BASE}/answers/${answer.answerId}`, { method: 'DELETE' });
+      if (!res || !res.ok) throw new Error('Failed to delete answer');
+      if (onDelete) onDelete(answer.answerId);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   const currentUsername = getUsername();
   const isAccepted = answer.isAccepted || answer.accepted;
   const canAccept = questionAuthorName === currentUsername;
+  const isAuthor = currentUsername === (answer.username ?? answer.displayName);
 
   return (
     <div className={`answer-card ${isAccepted ? 'answer-card--accepted' : ''}`}>
@@ -275,15 +310,60 @@ function AnswerCard({ answer, questionAuthorName, onVote, onAccept }) {
 
         {/* Content */}
         <div className="answer-content">
-          <p className="answer-body">{answer.body}</p>
+          {isEditing ? (
+            <textarea
+              value={editBody}
+              onChange={(e) => setEditBody(e.target.value)}
+              rows={8}
+              style={{ width: '100%', background: '#1c1e28', color: '#edeef0', border: '1px solid #0a95ff', borderRadius: '6px', padding: '12px', fontSize: '14px', resize: 'vertical', marginBottom: '8px' }}
+            />
+          ) : (
+            <p className="answer-body">{answer.body}</p>
+          )}
 
           <div className="answer-footer">
             <div className="answer-meta">
               <span className="meta-item"><ClockIcon /> answered {formatDate(answer.createdAt)}</span>
             </div>
-            <div className="answer-author">
-              <UserIcon />
-              <span>{answer.username ?? answer.displayName ?? 'Unknown'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="answer-author">
+                <UserIcon />
+                <span>{answer.username ?? answer.displayName ?? 'Unknown'}</span>
+              </div>
+              {/* Edit/Delete — only visible to the answer author */}
+              {isAuthor && !isEditing && (
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button
+                    onClick={() => { setEditBody(answer.body); setIsEditing(true); }}
+                    style={{ background: 'transparent', border: '1px solid #0a95ff', color: '#0a95ff', borderRadius: '4px', padding: '2px 10px', cursor: 'pointer', fontSize: '11px' }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    style={{ background: 'transparent', border: '1px solid #d93025', color: '#d93025', borderRadius: '4px', padding: '2px 10px', cursor: 'pointer', fontSize: '11px' }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+              {isEditing && (
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button
+                    onClick={handleSaveEdit}
+                    disabled={saving}
+                    style={{ background: '#0a95ff', border: 'none', color: '#fff', borderRadius: '4px', padding: '2px 12px', cursor: 'pointer', fontSize: '11px' }}
+                  >
+                    {saving ? 'Saving…' : 'Save'}
+                  </button>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    style={{ background: 'transparent', border: '1px solid #8b8fa7', color: '#8b8fa7', borderRadius: '4px', padding: '2px 10px', cursor: 'pointer', fontSize: '11px' }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -305,6 +385,7 @@ function AnswerCard({ answer, questionAuthorName, onVote, onAccept }) {
     </div>
   );
 }
+
 
 // ─── Skeleton ───
 
@@ -662,6 +743,7 @@ export default function QuestionDetail() {
                   questionAuthorName={question.authorName}
                   onVote={handleVoteAnswer}
                   onAccept={handleAcceptAnswer}
+                  onDelete={(deletedId) => setAnswers((prev) => prev.filter((a) => a.answerId !== deletedId))}
                 />
               ))}
             </div>
