@@ -367,9 +367,8 @@ function AnswerCard({ answer, questionAuthorId, onVote, onAccept, onDelete }) {
   const currentUsername = getUsername();
   const currentUserId = localStorage.getItem('userId');
   const isAccepted = answer.isAccepted || answer.accepted;
-  const canAccept = questionAuthorName === currentUsername;
+  const canAccept = questionAuthorId && currentUserId ? String(questionAuthorId) === String(currentUserId) : false;
   const isAuthor = currentUsername === (answer.username ?? answer.displayName);
-
   return (
     <div className={`answer-card ${isAccepted ? 'answer-card--accepted' : ''}`}>
       {isAccepted && (
