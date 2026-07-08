@@ -14,6 +14,7 @@ import com.singha.stackoverflow.springwebapp.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,6 +38,7 @@ public class AnswerService {
         @Autowired
         private VoteRepository voteRepository;
 
+        @Transactional
         public AnswerResponse createAnswer(Long questionId, String body) {
 
                 String username = Objects.requireNonNull(SecurityContextHolder.getContext()
@@ -44,7 +46,8 @@ public class AnswerService {
                         .getName();
 
                 User currentUser = userRepository.findByUsername(username)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                        .or(() -> userRepository.findByEmail(username))
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
                 Question question = questionRepository.findById(questionId).orElseThrow(
                                 () -> new ResourceNotFoundException("Question not found"));
@@ -87,6 +90,7 @@ public class AnswerService {
                 return convertToResponse(answer);
         }
 
+        @Transactional
         public AnswerResponse updateAnswer(Long answerId, String body) {
 
                 String username = Objects.requireNonNull(SecurityContextHolder.getContext()
@@ -94,7 +98,8 @@ public class AnswerService {
                                 .getName();
 
                 User currentUser = userRepository.findByUsername(username)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                        .or(() -> userRepository.findByEmail(username))
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
                 Answer answer = answerRepository.findById(answerId).orElseThrow(
                                 () -> new ResourceNotFoundException("Answer not found"));
@@ -111,13 +116,15 @@ public class AnswerService {
                 return convertToResponse(updatedAnswer);
         }
 
+        @Transactional
         public void deleteAnswer(Long answerId) {
                 String username = Objects.requireNonNull(SecurityContextHolder.getContext()
                                 .getAuthentication())
                                 .getName();
 
                 User currentUser = userRepository.findByUsername(username)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                        .or(() -> userRepository.findByEmail(username))
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
                 Answer answer = answerRepository.findById(answerId).orElseThrow(
                                 () -> new ResourceNotFoundException("Answer not found"));
@@ -129,13 +136,15 @@ public class AnswerService {
                 answerRepository.delete(answer);
         }
 
+        @Transactional
         public AnswerResponse acceptAnswer(Long answerId) {
                 String username = Objects.requireNonNull(SecurityContextHolder.getContext()
                                 .getAuthentication())
                                 .getName();
 
                 User currentUser = userRepository.findByUsername(username)
-                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                        .or(() -> userRepository.findByEmail(username))
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found: " + username));
 
                 Answer answer = answerRepository.findById(answerId).orElseThrow(
                                 () -> new ResourceNotFoundException("Answer not found"));
@@ -146,6 +155,14 @@ public class AnswerService {
                         throw new UnauthorizedException("You are not authorized to accept this answer");
                 }
 
+                if (answer.getIsAccepted() == true) {
+                        answer.setIsAccepted(false);
+                        answer.setUpdatedAt(LocalDateTime.now());
+
+                        Answer acceptedAnswer = answerRepository.save(answer);
+
+                        return convertToResponse(acceptedAnswer);
+                }
                 answer.setIsAccepted(true);
                 answer.setUpdatedAt(LocalDateTime.now());
 
