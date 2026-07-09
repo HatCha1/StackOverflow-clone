@@ -160,10 +160,10 @@ jobs:
 
       - name: Deploy frontend
         run: |
-          rsync -avz --delete \
+          rsync -avz \
             -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
             artifacts/frontend/ \
-            ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:webapp/frontend/
+            ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:webapp/frontend/dist
 
       # ── Deploy Backend ──
       - name: Upload backend JAR
