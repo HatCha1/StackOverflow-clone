@@ -142,8 +142,8 @@ jobs:
 
       - name: Debug deploy variables
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_HOST: ${{ vars.SERVER_HOST }}
+          SERVER_USER: ${{ vars.SERVER_USER }}
         run: |
           echo "SERVER_HOST length: ${#SERVER_HOST}"
           echo "SERVER_USER length: ${#SERVER_USER}"
@@ -153,18 +153,18 @@ jobs:
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
             artifacts/frontend/ \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:webapp/frontend/
+            ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:webapp/frontend/
 
       # ── Deploy Backend ──
       - name: Upload backend JAR
         run: |
           scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
             artifacts/backend/*.jar \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:webapp/backend/target/
+            ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:webapp/backend/target/
 
       # ── Restart Spring Boot service on the server ──
       - name: Restart backend service
         run: |
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }} \
             "sudo systemctl restart myspringapp.service"
