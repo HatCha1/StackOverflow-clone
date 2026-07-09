@@ -140,20 +140,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-      - name: Check secrets
-        run: |
-          if [ -z "${{ secrets.SERVER_HOST }}" ]; then
-            echo "SERVER_HOST is EMPTY"
-          else
-            echo "SERVER_HOST exists"
-          fi
-
-          if [ -z "${{ secrets.SERVER_USER }}" ]; then
-            echo "SERVER_USER is EMPTY"
-          else
-            echo "SERVER_USER exists"
-          fi
-
       - name: Deploy frontend
         run: |
           rsync -avz --delete \
