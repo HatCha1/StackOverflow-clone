@@ -140,12 +140,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-      - name: Inspect key
-        run: |
-          wc -l ~/.ssh/id_ed25519
-          head -n 1 ~/.ssh/id_ed25519
-          tail -n 1 ~/.ssh/id_ed25519
-
       - name: Verify SSH key on runner
         run: |
           chmod 600 ~/.ssh/id_ed25519
@@ -177,5 +171,5 @@ jobs:
       - name: Restart backend service
         run: |
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }} \
-            "sudo systemctl restart myspringapp.service"
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S systemctl restart myspringapp.service"
