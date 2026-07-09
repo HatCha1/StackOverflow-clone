@@ -171,5 +171,5 @@ jobs:
       - name: Restart backend service
         run: |
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }} \
             "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S systemctl restart myspringapp.service"
