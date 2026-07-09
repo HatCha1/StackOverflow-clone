@@ -140,6 +140,14 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
+      - name: Debug deploy variables
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          echo "SERVER_HOST length: ${#SERVER_HOST}"
+          echo "SERVER_USER length: ${#SERVER_USER}"
+
       - name: Deploy frontend
         run: |
           rsync -avz --delete \
