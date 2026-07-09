@@ -162,7 +162,7 @@ jobs:
             artifacts/backend/*.jar \
             ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:webapp/backend/target/
 
-      # ── Restart Spring Boot service on the server ──
+      # ── Restart Spring Boot service on the server ─
       - name: Restart backend service
         run: |
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no \
