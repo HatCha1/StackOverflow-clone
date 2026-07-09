@@ -134,16 +134,16 @@ jobs:
           name: frontend-dist
           path: artifacts/frontend/
 
-      - name: Verify SSH key on runner
-        run: |
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keygen -y -f ~/.ssh/id_ed25519
-
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+
+      - name: Verify SSH key on runner
+        run: |
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519
 
       - name: Debug deploy variables
         env:
