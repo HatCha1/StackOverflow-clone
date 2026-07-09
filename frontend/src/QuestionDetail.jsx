@@ -366,7 +366,10 @@ function AnswerCard({ answer, questionAuthorName, onVote, onAccept, onDelete }) 
 
   const currentUsername = getUsername();
   const isAccepted = answer.isAccepted || answer.accepted;
-  const canAccept = questionAuthorId && currentUserId ? String(questionAuthorId) === String(currentUserId) : false;
+
+  // Only the question author can accept an answer
+  const canAccept = currentUsername === questionAuthorName;
+
   const isAuthor = currentUsername === (answer.username ?? answer.displayName);
   return (
     <div className={`answer-card ${isAccepted ? 'answer-card--accepted' : ''}`}>
